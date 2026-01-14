@@ -1,0 +1,620 @@
+/**
+ * 主样式文件
+ * 包含所有组件样式，在 Shadow DOM 中使用
+ */
+
+@import './variables.css';
+
+/* ========== 全局重置 ========== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ========== 容器 ========== */
+.cwd-comments-container {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji';
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--cwd-text);
+  background: var(--cwd-bg);
+  word-wrap: break-word;
+}
+
+/* ========== 头部统计 ========== */
+.cwd-comments-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--cwd-border);
+}
+
+.cwd-comments-count {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--cwd-text);
+}
+
+/* ========== Loading 组件 ========== */
+.cwd-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px 20px;
+  color: var(--cwd-text-secondary, #6e7781);
+}
+
+.cwd-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--cwd-border, #d0d7de);
+  border-top-color: var(--cwd-primary, #0969da);
+  border-radius: 50%;
+  animation: cwd-spin 0.6s linear infinite;
+}
+
+@keyframes cwd-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.cwd-loading-text {
+  font-size: 14px;
+}
+
+/* ========== CommentForm 组件 ========== */
+.cwd-comment-form {
+  background: var(--cwd-bg, #ffffff);
+  border: 1px solid var(--cwd-border, #d0d7de);
+  border-radius: var(--cwd-radius, 6px);
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.cwd-form-title {
+  margin: 0 0 16px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--cwd-text, #24292f);
+}
+
+.cwd-form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cwd-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 640px) {
+  .cwd-form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cwd-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cwd-form-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--cwd-text, #24292f);
+}
+
+.cwd-form-field input,
+.cwd-form-field textarea {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--cwd-text, #24292f);
+  background: var(--cwd-bg-input, #ffffff);
+  border: 1px solid var(--cwd-border, #d0d7de);
+  border-radius: var(--cwd-radius, 6px);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  font-family: inherit;
+}
+
+.cwd-form-field input:focus,
+.cwd-form-field textarea:focus {
+  outline: none;
+  border-color: var(--cwd-primary, #0969da);
+  box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.1);
+}
+
+.cwd-form-field input:disabled,
+.cwd-form-field textarea:disabled {
+  background: var(--cwd-bg-disabled, #f6f8fa);
+  cursor: not-allowed;
+}
+
+.cwd-form-field input.cwd-input-error,
+.cwd-form-field textarea.cwd-input-error {
+  border-color: var(--cwd-error, #cf222e);
+}
+
+.cwd-form-field textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.cwd-error-text {
+  font-size: 12px;
+  color: var(--cwd-error, #cf222e);
+}
+
+.cwd-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.cwd-btn {
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+  border: none;
+  border-radius: var(--cwd-radius, 6px);
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-family: inherit;
+}
+
+.cwd-btn-primary {
+  color: #ffffff;
+  background: var(--cwd-primary, #0969da);
+}
+
+.cwd-btn-primary:hover:not(:disabled) {
+  background: var(--cwd-primary-hover, #0864ca);
+}
+
+.cwd-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ========== ReplyEditor 组件 ========== */
+.cwd-reply-editor {
+  margin-top: 12px;
+  padding: 12px;
+  background: var(--cwd-bg-reply, #f6f8fa);
+  border: 1px solid var(--cwd-border, #d0d7de);
+  border-radius: var(--cwd-radius, 6px);
+}
+
+.cwd-reply-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.cwd-reply-to {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--cwd-text-secondary, #6e7781);
+}
+
+.cwd-btn-close {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  font-size: 14px;
+  color: var(--cwd-text-secondary, #6e7781);
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.cwd-btn-close:hover {
+  background: var(--cwd-bg-hover, rgba(0, 0, 0, 0.05));
+}
+
+.cwd-reply-textarea {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--cwd-text, #24292f);
+  background: var(--cwd-bg-input, #ffffff);
+  border: 1px solid var(--cwd-border, #d0d7de);
+  border-radius: var(--cwd-radius, 6px);
+  resize: vertical;
+  font-family: inherit;
+  margin-bottom: 8px;
+}
+
+.cwd-reply-textarea:focus {
+  outline: none;
+  border-color: var(--cwd-primary, #0969da);
+  box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.1);
+}
+
+.cwd-reply-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.cwd-btn-small {
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+.cwd-btn-secondary {
+  color: var(--cwd-text, #24292f);
+  background: var(--cwd-bg-secondary, #f6f8fa);
+  border: 1px solid var(--cwd-border, #d0d7de);
+}
+
+.cwd-btn-secondary:hover:not(:disabled) {
+  background: var(--cwd-bg-hover, #eaeef2);
+}
+
+/* ========== CommentItem 组件 ========== */
+.cwd-comment-item {
+  display: flex;
+  gap: 12px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--cwd-border-light, #eaeef2);
+}
+
+/* 鼠标悬停在评论主体上时显示操作按钮 */
+.cwd-comment-body:hover .cwd-action-btn {
+  display: inline-flex !important;
+}
+
+.cwd-comment-item:last-child {
+  border-bottom: none;
+}
+
+.cwd-comment-reply {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+.cwd-comment-avatar {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 5px;
+  border: 1px solid var(--cwd-border, #d0d7de);
+  overflow: hidden;
+  background: var(--cwd-bg-avatar, #f6f8fa)
+}
+
+.cwd-comment-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  ;
+}
+
+.cwd-comment-reply .cwd-comment-avatar {
+  width: 32px;
+  height: 32px;
+}
+
+.cwd-comment-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.cwd-comment-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.cwd-author-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--cwd-text, #24292f);
+}
+
+.cwd-author-name a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.cwd-author-name a:hover {
+  color: var(--cwd-primary, #0969da);
+  text-decoration: underline;
+}
+
+.cwd-comment-author {
+  display: inline-flex;
+  align-items: center;
+}
+
+.cwd-admin-badge {
+  background: #db850d;
+  color: #fff;
+  border-radius: 3px;
+  padding: 1px 4px;
+  font-size: 12px;
+  margin: 0 4px;
+}
+
+.cwd-reply-to-separator {
+  margin: 0 4px;
+}
+
+.cwd-reply-to-author {
+  font-style: italic;
+}
+
+.cwd-comment-time {
+  font-size: 12px;
+  color: var(--cwd-text-secondary, #6e7781);
+}
+
+.cwd-comment-content {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--cwd-text, #24292f);
+  word-wrap: break-word;
+  margin-top: 10px;
+}
+
+.cwd-comment-content p {
+  margin: 0 0 8px;
+}
+
+.cwd-comment-content p:last-child {
+  margin-bottom: 0;
+}
+
+.cwd-comment-content a {
+  color: var(--cwd-primary, #0969da);
+  text-decoration: none;
+}
+
+.cwd-comment-content a:hover {
+  text-decoration: underline;
+}
+
+.cwd-comment-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cwd-action-btn {
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  color: var(--cwd-text-secondary, #6e7781);
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-family: inherit;
+  display: none;
+}
+
+.cwd-action-btn:hover {
+  color: var(--cwd-primary, #0969da);
+}
+
+.cwd-replies {
+  margin-top: 12px;
+  padding-left: 12px;
+  border-left: 2px solid var(--cwd-border-light, #eaeef2);
+}
+
+/* ========== CommentList 组件 ========== */
+.cwd-comment-list {
+  min-height: 100px;
+}
+
+.cwd-comments {
+  display: flex;
+  flex-direction: column;
+}
+
+.cwd-error {
+  padding: 20px;
+  text-align: center;
+  color: var(--cwd-error, #cf222e);
+  background: var(--cwd-bg-error, #ffebe9);
+  border: 1px solid var(--cwd-border-error, #fd8c73);
+  border-radius: var(--cwd-radius, 6px);
+}
+
+.cwd-error-retry {
+  margin-left: 12px;
+  padding: 4px 12px;
+  font-size: 13px;
+  color: #ffffff;
+  background: var(--cwd-primary, #0969da);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.cwd-error-retry:hover {
+  background: var(--cwd-primary-hover, #0864ca);
+}
+
+.cwd-empty {
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.cwd-empty-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.cwd-empty-text {
+  margin: 0;
+  font-size: 14px;
+  color: var(--cwd-text-secondary, #6e7781);
+}
+
+/* ========== Pagination 组件 ========== */
+.cwd-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 20px 0;
+}
+
+.cwd-page-btn {
+  padding: 6px 12px;
+  font-size: 13px;
+  color: var(--cwd-text, #24292f);
+  background: var(--cwd-bg, #ffffff);
+  border: 1px solid var(--cwd-border, #d0d7de);
+  border-radius: var(--cwd-radius, 6px);
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-family: inherit;
+}
+
+.cwd-page-btn:hover:not(:disabled) {
+  background: var(--cwd-bg-hover, #f6f8fa);
+}
+
+.cwd-page-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cwd-page-numbers {
+  display: flex;
+  gap: 4px;
+}
+
+.cwd-page-num {
+  min-width: 32px;
+  padding: 6px 8px;
+  font-size: 13px;
+  color: var(--cwd-text, #24292f);
+  background: var(--cwd-bg, #ffffff);
+  border: 1px solid var(--cwd-border, #d0d7de);
+  border-radius: var(--cwd-radius, 6px);
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-family: inherit;
+}
+
+.cwd-page-num:hover {
+  background: var(--cwd-bg-hover, #f6f8fa);
+}
+
+.cwd-page-num-active {
+  color: #ffffff;
+  background: var(--cwd-primary, #0969da);
+  border-color: var(--cwd-primary, #0969da);
+}
+
+/* ========== App 组件 ========== */
+.cwd-error-inline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: var(--cwd-error, #cf222e);
+  background: var(--cwd-bg-error, #ffebe9);
+  border: 1px solid var(--cwd-border-error, #fd8c73);
+  border-radius: var(--cwd-radius, 6px);
+}
+
+.cwd-error-close {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  font-size: 14px;
+  color: inherit;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.cwd-error-close:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+/* ========== 其他 ========== */
+.cwd-load-more {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  margin: 16px 0;
+  font-size: 14px;
+  color: var(--cwd-primary);
+  background: var(--cwd-bg-secondary);
+  border: 1px solid var(--cwd-border);
+  border-radius: var(--cwd-radius);
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-family: inherit;
+}
+
+.cwd-load-more:hover {
+  background: var(--cwd-bg-hover);
+}
+
+/* 过渡动画 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* 滚动条样式 */
+.cwd-comments-container::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.cwd-comments-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.cwd-comments-container::-webkit-scrollbar-thumb {
+  background: var(--cwd-border);
+  border-radius: 4px;
+}
+
+.cwd-comments-container::-webkit-scrollbar-thumb:hover {
+  background: var(--cwd-text-secondary);
+}

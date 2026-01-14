@@ -1,0 +1,28 @@
+{
+	"name": "cwd-comments",
+	"version": "0.0.1",
+	"private": true,
+	"scripts": {
+		"deploy": "wrangler deploy",
+		"dev": "wrangler dev",
+		"start": "wrangler dev",
+		"test": "vitest",
+		"cf-typegen": "wrangler types",
+		"widget:dev": "cd widget && npm install && npm run dev",
+		"widget:build": "cd widget && npm run build",
+		"docs:dev": "cd docs && npm run dev",
+		"docs:build": "cd docs && npm run build",
+		"docs:preview": "cd docs && npm run preview"
+	},
+	"devDependencies": {
+		"@cloudflare/vitest-pool-workers": "^0.8.19",
+		"@types/ua-parser-js": "^0.7.39",
+		"typescript": "^5.5.2",
+		"vitest": "~3.2.0",
+		"wrangler": "^4.58.0"
+	},
+	"dependencies": {
+		"hono": "^4.11.3",
+		"ua-parser-js": "^2.0.7"
+	}
+}

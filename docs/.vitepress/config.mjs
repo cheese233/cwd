@@ -1,0 +1,43 @@
+import { defineConfig } from 'vitepress'
+
+export default defineConfig({
+  title: 'CWD 评论系统',
+  description: '基于 Cloudflare Workers 的轻量级评论系统文档',
+  lang: 'zh-CN',
+
+  themeConfig: {
+    nav: [
+      { text: '首页', link: '/' },
+      { text: '配置', link: '/guide/getting-started' },
+      { text: 'API', link: '/api/overview' }
+    ],
+
+    sidebar: [
+      {
+        text: '配置',
+        items: [
+          { text: '快速开始', link: '/guide/getting-started' },
+          { text: '后端配置', link: '/guide/backend-config' },
+          { text: '前端配置', link: '/guide/frontend-config' },
+        ]
+      },
+      {
+        text: 'API 文档',
+        items: [
+          { text: '概览', link: '/api/overview' },
+          { text: '公开 API', link: '/api/public' },
+          { text: '管理员 API', link: '/api/admin' }
+        ]
+      }
+    ],
+
+    socialLinks: [
+      { icon: 'github', link: 'https://github.com/anghunk/cwd-comments' }
+    ],
+
+    footer: {
+      message: '基于 Cloudflare Workers 构建',
+      copyright: 'Copyright © 2026'
+    }
+  }
+})

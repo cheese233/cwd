@@ -1,0 +1,15 @@
+/**
+ * For more details on how to configure Wrangler, refer to:
+ * https://developers.cloudflare.com/workers/wrangler/configuration/
+ */
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "cwd-comments",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-01-03",
+	"observability": {
+		"enabled": true
+	},
+	"workers_dev": true,
+	"preview_urls": true
+}
