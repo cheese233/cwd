@@ -46,11 +46,11 @@ export class CommentForm extends Component {
 							className: 'cwd-form-row',
 							children: [
 								// 昵称
-								this.createFormField('昵称 *', 'text', 'author', localForm.author, formErrors.author, '昵称 *'),
+								this.createFormField('昵称 *', 'text', 'author', localForm.author, formErrors.author),
 								// 邮箱
-								this.createFormField('邮箱 *', 'email', 'email', localForm.email, formErrors.email, '邮箱 *'),
+								this.createFormField('邮箱 *', 'email', 'email', localForm.email, formErrors.email),
 								// 网址
-								this.createFormField('网址', 'url', 'url', localForm.url, formErrors.url, '网址'),
+								this.createFormField('网址', 'url', 'url', localForm.url, formErrors.url),
 							],
 						}),
 
@@ -58,11 +58,11 @@ export class CommentForm extends Component {
 						this.createElement('div', {
 							className: 'cwd-form-field',
 							children: [
-								this.createTextElement('label', '评论内容', 'cwd-form-label'),
+								this.createTextElement('label', '写下你的评论...', 'cwd-form-label'),
 								this.createElement('textarea', {
 									className: `cwd-form-textarea ${formErrors.content ? 'cwd-input-error' : ''}`,
 									attributes: {
-										placeholder: '写下你的评论...',
+										placeholder: '',
 										rows: 4,
 										disabled: submitting,
 										onInput: (e) => this.handleFieldChange('content', e.target.value),
