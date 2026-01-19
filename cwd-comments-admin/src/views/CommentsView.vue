@@ -19,21 +19,17 @@
     <div v-else>
       <div class="comment-table">
         <div class="table-header">
-          <div class="table-cell table-cell-id">ID</div>
-          <div class="table-cell table-cell-author">作者</div>
-          <div class="table-cell table-cell-content">内容</div>
-          <div class="table-cell table-cell-path">路径</div>
-          <div class="table-cell table-cell-time">时间</div>
+          <div class="table-cell table-cell-author">用户</div>
+          <div class="table-cell table-cell-content">评论信息</div>
+          <div class="table-cell table-cell-path">评论地址</div>
           <div class="table-cell table-cell-status">状态</div>
           <div class="table-cell table-cell-actions">操作</div>
         </div>
         <div v-for="item in filteredComments" :key="item.id" class="table-row">
-          <div class="table-cell table-cell-id">
-            <span class="cell-id">#{{ item.id }}</span>
-          </div>
           <div class="table-cell table-cell-author">
             <div class="cell-author-name">{{ item.author }}</div>
             <div class="cell-author-email">{{ item.email }}</div>
+            <span class="cell-time">{{ formatDate(item.pubDate) }}</span>
           </div>
           <div class="table-cell table-cell-content">
             <div class="cell-content-text">{{ item.contentText }}</div>
@@ -41,9 +37,7 @@
           <div class="table-cell table-cell-path">
             <span class="cell-path" :title="item.postSlug">{{ item.postSlug }}</span>
           </div>
-          <div class="table-cell table-cell-time">
-            <span class="cell-time">{{ formatDate(item.pubDate) }}</span>
-          </div>
+
           <div class="table-cell table-cell-status">
             <span class="cell-status" :class="`cell-status-${item.status}`">
               {{ formatStatus(item.status) }}
@@ -81,9 +75,7 @@
             </div>
           </div>
         </div>
-        <div v-if="filteredComments.length === 0" class="table-empty">
-          暂无数据
-        </div>
+        <div v-if="filteredComments.length === 0" class="table-empty">暂无数据</div>
       </div>
       <div v-if="pagination.total > 1" class="pagination">
         <button
@@ -292,9 +284,8 @@ onMounted(() => {
 }
 
 .table-cell-id {
-  width: 50px;
+  width: 120px;
   flex-shrink: 0;
-  align-items: center;
   white-space: nowrap;
 }
 
@@ -328,7 +319,7 @@ onMounted(() => {
 }
 
 .table-cell-actions {
-  width: 240px;
+  white-space: nowrap;
   flex-shrink: 0;
   justify-content: flex-start;
   align-items: center;
@@ -355,6 +346,7 @@ onMounted(() => {
   font-size: 11px;
   color: #57606a;
   word-break: break-all;
+  margin-bottom: 2px;
 }
 
 .cell-content-text {
@@ -362,8 +354,6 @@ onMounted(() => {
   line-height: 1.5;
   white-space: pre-wrap;
   word-break: break-word;
-  max-height: 60px;
-  overflow-y: auto;
 }
 
 .cell-path {

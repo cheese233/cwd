@@ -14,7 +14,7 @@ Cloudflare Worker 版本基于 Cloudflare Workers + D1 + KV 实现，无需服�
 - 🎨 **易于集成**：提供完整的 REST API
 
 **开发中：**
-- [ ]📧 **邮件通知**：基于 Cloudflare Workers 发送邮件
+~~- [ ]📧 **邮件通知**：基于 Cloudflare Workers 发送邮件~~ Cloudflare Workers 不支持给第三方自动发信，下一步开发基于邮箱提供商的发信系统。
 
 ## 前置要求
 
