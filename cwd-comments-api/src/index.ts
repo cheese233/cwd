@@ -14,8 +14,24 @@ import { getAdminEmail } from './api/admin/getAdminEmail';
 import { setAdminEmail } from './api/admin/setAdminEmail';
 
 const app = new Hono<{ Bindings: Bindings }>();
+const VERSION = 'v0.0.1';
 
-// 跨域
+app.use('*', async (c, next) => {
+	console.log('Request:start', {
+		method: c.req.method,
+		path: c.req.path,
+		url: c.req.url,
+		hasDb: !!c.env.CWD_DB,
+		hasAuthKv: !!c.env.CWD_AUTH_KV
+	});
+	const res = await next();
+	console.log('Request:end', {
+		method: c.req.method,
+		path: c.req.path
+	});
+	return res;
+});
+
 app.use('/api/*', async (c, next) => {
 	const corsMiddleware = customCors(c.env.ALLOW_ORIGIN);
 	return corsMiddleware(c, next);
@@ -25,7 +41,12 @@ app.use('/admin/*', async (c, next) => {
 	return corsMiddleware(c, next);
 });
 
-// API
+app.get('/', (c) => {
+	return c.html(
+		`CWD 评论部署成功，当前版本 ${VERSION}，<a href="https://github.com/anghunk/cwd-comments" target="_blank" rel="noreferrer">查看文档</a>`
+	);
+});
+
 app.get('/api/comments', getComments);
 app.post('/api/comments', postComment);
 

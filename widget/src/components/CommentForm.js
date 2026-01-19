@@ -159,19 +159,15 @@ export class CommentForm extends Component {
 	updateErrors(formErrors) {
 		if (!this.elements.root) return;
 
-		// 昵称错误
-		const authorInput = this.elements.root.querySelector('input[placeholder*="昵称"]');
+		const authorInput = this.elements.root.querySelector('input[name="author"]');
 		this.updateFieldError(authorInput, formErrors?.author);
 
-		// 邮箱错误
-		const emailInput = this.elements.root.querySelector('input[placeholder*="邮箱"]');
+		const emailInput = this.elements.root.querySelector('input[name="email"]');
 		this.updateFieldError(emailInput, formErrors?.email);
 
-		// 网址错误
-		const urlInput = this.elements.root.querySelector('input[placeholder*="网址"]');
+		const urlInput = this.elements.root.querySelector('input[name="url"]');
 		this.updateFieldError(urlInput, formErrors?.url);
 
-		// 内容错误
 		const contentTextarea = this.elements.root.querySelector('textarea');
 		this.updateFieldError(contentTextarea, formErrors?.content);
 	}
@@ -216,7 +212,8 @@ export class CommentForm extends Component {
 					className: `cwd-form-input ${error ? 'cwd-input-error' : ''}`,
 					attributes: {
 						type,
-						placeholder,
+						name: fieldName,
+						value: value || '',
 						disabled: this.props.submitting,
 						onInput: (e) => this.handleFieldChange(fieldName, e.target.value),
 					},
@@ -230,9 +227,9 @@ export class CommentForm extends Component {
 	 * 设置输入框的值
 	 */
 	setInputValues(root, form) {
-		const authorInput = root.querySelector('input[placeholder*="昵称"]');
-		const emailInput = root.querySelector('input[placeholder*="邮箱"]');
-		const urlInput = root.querySelector('input[placeholder*="网址"]');
+		const authorInput = root.querySelector('input[name="author"]');
+		const emailInput = root.querySelector('input[name="email"]');
+		const urlInput = root.querySelector('input[name="url"]');
 		const contentTextarea = root.querySelector('textarea');
 
 		if (authorInput) authorInput.value = form.author || '';

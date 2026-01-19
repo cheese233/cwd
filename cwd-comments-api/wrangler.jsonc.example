@@ -7,9 +7,6 @@
 	"name": "cwd-comments",
 	"main": "src/index.ts",
 	"compatibility_date": "2026-01-03",
-	"observability": {
-		"enabled": true
-	},
 	"workers_dev": true,
 	"preview_urls": true
 }

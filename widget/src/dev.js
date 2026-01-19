@@ -10,7 +10,7 @@ const STORAGE_KEY = 'cwd-dev-config';
 // 默认配置
 const DEFAULT_CONFIG = {
 	apiBaseUrl: 'http://localhost:8788',
-	postSlug: 'demo-post',
+	postSlug: "https://zishu.me/message",
 	theme: 'light',
 	avatarPrefix: 'https://gravatar.com/avatar',
 };

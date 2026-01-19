@@ -58,6 +58,17 @@ export const postComment = async (c: Context<{ Bindings: Bindings }>) => {
   // 3. 准备数据
   const content = checkContent(rawContent);
   const author = checkContent(rawAuthor);
+
+  console.log('PostComment:request', {
+    postSlug: post_slug,
+    hasParent: !!parent_id,
+    author,
+    email,
+    ip,
+    hasSendEmailBinding: !!c.env.SEND_EMAIL,
+    fromEmail: c.env.CF_FROM_EMAIL,
+    emailAddressEnv: c.env.EMAIL_ADDRESS
+  });
   const uaParser = new UAParser(userAgent);
   const uaResult = uaParser.getResult();
 
@@ -88,12 +99,20 @@ export const postComment = async (c: Context<{ Bindings: Bindings }>) => {
 
     if (!success) throw new Error("Database insert failed");
 
+    console.log('PostComment:inserted', {
+      postSlug: post_slug,
+      hasParent: !!parent_id,
+      ip
+    });
+
     // 5. 发送邮件通知 (后台异步执行，不阻塞用户响应)
     if (c.env.SEND_EMAIL && c.env.CF_FROM_EMAIL) {
+      console.log('PostComment:mailDispatch:start', {
+        hasParent: !!data.parent_id
+      });
       c.executionCtx.waitUntil((async () => {
         try {
           if (data.parent_id) {
-            // 回复逻辑：查询父评论信息
             const parentComment = await c.env.CWD_DB.prepare(
               "SELECT author, email, content_text FROM Comment WHERE id = ?"
             ).bind(data.parent_id).first<{ author: string, email: string, content_text: string }>();
@@ -104,6 +123,10 @@ export const postComment = async (c: Context<{ Bindings: Bindings }>) => {
               ).bind(parentComment.email).first<{ created_at: string }>();
               const canSendUserMail = !recentUserMail || (Date.now() - new Date(recentUserMail.created_at).getTime() > 60 * 1000);
               if (canSendUserMail) {
+                console.log('PostComment:mailDispatch:userReply:send', {
+                  toEmail: parentComment.email,
+                  toName: parentComment.author
+                });
                 await sendCommentReplyNotification(c.env, {
                   toEmail: parentComment.email,
                   toName: parentComment.author,
@@ -116,15 +139,23 @@ export const postComment = async (c: Context<{ Bindings: Bindings }>) => {
                 await c.env.CWD_DB.prepare(
                   "INSERT INTO EmailLog (recipient, type, ip_address, created_at) VALUES (?, ?, ?, ?)"
                 ).bind(parentComment.email, 'user-reply', ip, new Date().toISOString()).run();
+                console.log('PostComment:mailDispatch:userReply:logInserted', {
+                  toEmail: parentComment.email
+                });
+              }
+              if (!canSendUserMail) {
+                console.log('PostComment:mailDispatch:userReply:skippedByRateLimit', {
+                  toEmail: parentComment.email
+                });
               }
             }
           } else {
-            // 新评论通知站长
             const adminEmailRow = await c.env.CWD_DB.prepare(
               "SELECT created_at FROM EmailLog WHERE type = 'admin-notify' ORDER BY created_at DESC LIMIT 1"
             ).first<{ created_at: string }>();
             const canSendAdminMail = !adminEmailRow || (Date.now() - new Date(adminEmailRow.created_at).getTime() > 15 * 1000);
             if (canSendAdminMail) {
+              console.log('PostComment:mailDispatch:admin:send');
               await sendCommentNotification(c.env, {
                 postTitle: data.post_title,
                 postUrl: data.post_url,
@@ -134,12 +165,21 @@ export const postComment = async (c: Context<{ Bindings: Bindings }>) => {
               await c.env.CWD_DB.prepare(
                 "INSERT INTO EmailLog (recipient, type, ip_address, created_at) VALUES (?, ?, ?, ?)"
               ).bind('admin', 'admin-notify', ip, new Date().toISOString()).run();
+              console.log('PostComment:mailDispatch:admin:logInserted');
+            }
+            if (!canSendAdminMail) {
+              console.log('PostComment:mailDispatch:admin:skippedByRateLimit');
             }
           }
         } catch (mailError) {
           console.error("Mail Notification Failed:", mailError);
         }
       })());
+    } else {
+      console.log('PostComment:mailDispatch:skipNoBinding', {
+        hasSendEmailBinding: !!c.env.SEND_EMAIL,
+        fromEmail: c.env.CF_FROM_EMAIL
+      });
     }
 
     return c.json({ message: "Comment submitted. Awaiting moderation." });

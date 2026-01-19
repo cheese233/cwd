@@ -17,6 +17,14 @@ export async function sendCommentReplyNotification(
 ) {
   const { toEmail, toName, postTitle, parentComment, replyAuthor, replyContent, postUrl } = params;
 
+  console.log('EmailReplyNotification:start', {
+    toEmail,
+    toName,
+    postTitle,
+    fromEmail: env.CF_FROM_EMAIL,
+    hasSendBinding: !!env.SEND_EMAIL
+  });
+
   const html = `
       <div style="font-family: sans-serif; line-height: 1.6; color: #333;">
         <p>Hi <b>${toName}</b>，</p>
@@ -39,6 +47,10 @@ export async function sendCommentReplyNotification(
     `;
 
   if (!env.SEND_EMAIL || !env.CF_FROM_EMAIL) {
+    console.error('EmailReplyNotification:missingBinding', {
+      hasSendBinding: !!env.SEND_EMAIL,
+      fromEmail: env.CF_FROM_EMAIL
+    });
     throw new Error('未配置邮件发送绑定或发件人地址');
   }
 
@@ -47,6 +59,10 @@ export async function sendCommentReplyNotification(
     from: { email: env.CF_FROM_EMAIL },
     subject: `你在 example.com 上的评论有了新回复`,
     html
+  });
+
+  console.log('EmailReplyNotification:sent', {
+    toEmail
   });
 }
 
@@ -65,6 +81,13 @@ export async function sendCommentNotification(
   const { postTitle, postUrl, commentAuthor, commentContent } = params;
   const toEmail = await getAdminNotifyEmail(env);
 
+  console.log('EmailAdminNotification:start', {
+    toEmail,
+    postTitle,
+    fromEmail: env.CF_FROM_EMAIL,
+    hasSendBinding: !!env.SEND_EMAIL
+  });
+
   const html = `
     <div style="font-family: sans-serif;">
       <p><b>${commentAuthor}</b> 在文章《${postTitle}》下发表了评论：</p>
@@ -76,6 +99,10 @@ export async function sendCommentNotification(
   `;
 
   if (!env.SEND_EMAIL || !env.CF_FROM_EMAIL) {
+    console.error('EmailAdminNotification:missingBinding', {
+      hasSendBinding: !!env.SEND_EMAIL,
+      fromEmail: env.CF_FROM_EMAIL
+    });
     throw new Error('未配置邮件发送绑定或发件人地址');
   }
 
@@ -85,14 +112,31 @@ export async function sendCommentNotification(
     subject: `新评论通知：${postTitle}`,
     html
   });
+
+  console.log('EmailAdminNotification:sent', {
+    toEmail
+  });
 }
 
-// 读取管理员通知邮箱：优先 KV 设置，其次环境变量
 async function getAdminNotifyEmail(env: Bindings): Promise<string> {
-  if (env.CWD_CONFIG_KV) {
-    const val = await env.CWD_CONFIG_KV.get('settings:admin_notify_email');
-    if (val) return val;
+  await env.CWD_DB.prepare(
+    'CREATE TABLE IF NOT EXISTS Settings (key TEXT PRIMARY KEY, value TEXT NOT NULL)'
+  ).run();
+  const row = await env.CWD_DB.prepare('SELECT value FROM Settings WHERE key = ?')
+    .bind('admin_notify_email')
+    .first<{ value: string }>();
+  if (row?.value) {
+    console.log('EmailAdminNotification:useDbEmail', {
+      email: row.value
+    });
+    return row.value;
   }
-  if (env.EMAIL_ADDRESS) return env.EMAIL_ADDRESS;
+  if (env.EMAIL_ADDRESS) {
+    console.log('EmailAdminNotification:useEnvEmail', {
+      email: env.EMAIL_ADDRESS
+    });
+    return env.EMAIL_ADDRESS;
+  }
+  console.error('EmailAdminNotification:noAdminEmail');
   throw new Error('未配置管理员通知邮箱');
 }

@@ -50,21 +50,16 @@ npm install
   ]
   ```
   如果`binding`字段不是`CWD_DB`，请修改为`CWD_DB`
-  
+
 * **创建 KV 存储**，如果遇到提示，按回车继续
   ```bash
   npx wrangler kv namespace create CWD_AUTH_KV
-  npx wrangler kv namespace create CWD_CONFIG_KV
   ```
   运行完成后可以确认一下 `wrangler.jsonc` 中是否有如下配置
   ```jsonc
   "kv_namespaces": [
       {
           "binding": "CWD_AUTH_KV",
-          "id": "xxxxxxx" // KV 存储 ID
-      },
-      {
-          "binding": "CWD_CONFIG_KV",
           "id": "xxxxxxx" // KV 存储 ID
       }
   ]

@@ -3,14 +3,14 @@ import { Bindings } from '../../bindings';
 
 export const getAdminEmail = async (c: Context<{ Bindings: Bindings }>) => {
   try {
-    let email: string | null = null;
-    if (c.env.CWD_CONFIG_KV) {
-      email = await c.env.CWD_CONFIG_KV.get('settings:admin_notify_email');
-    }
-    if (!email) {
-      email = c.env.EMAIL_ADDRESS || null;
-    }
-    return c.json({ email });
+    await c.env.CWD_DB.prepare(
+      'CREATE TABLE IF NOT EXISTS Settings (key TEXT PRIMARY KEY, value TEXT NOT NULL)'
+    ).run();
+    const row = await c.env.CWD_DB.prepare('SELECT value FROM Settings WHERE key = ?')
+      .bind('admin_notify_email')
+      .first<{ value: string }>();
+    const email = row?.value || c.env.EMAIL_ADDRESS || null;
+    return c.json({ email: email });
   } catch (e: any) {
     return c.json({ message: e.message }, 500);
   }

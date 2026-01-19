@@ -11,10 +11,12 @@ export const setAdminEmail = async (c: Context<{ Bindings: Bindings }>) => {
     if (!email || !isValidEmail(email)) {
       return c.json({ message: '邮箱格式不正确' }, 400);
     }
-    if (!c.env.CWD_CONFIG_KV) {
-      return c.json({ message: '未配置 CWD_CONFIG_KV，无法保存设置' }, 500);
-    }
-    await c.env.CWD_CONFIG_KV.put('settings:admin_notify_email', email);
+    await c.env.CWD_DB.prepare(
+      'CREATE TABLE IF NOT EXISTS Settings (key TEXT PRIMARY KEY, value TEXT NOT NULL)'
+    ).run();
+    await c.env.CWD_DB.prepare('REPLACE INTO Settings (key, value) VALUES (?, ?)')
+      .bind('admin_notify_email', email)
+      .run();
     return c.json({ message: '保存成功' });
   } catch (e: any) {
     return c.json({ message: e.message }, 500);

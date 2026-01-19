@@ -1,7 +1,6 @@
 export type Bindings = {
   CWD_DB: D1Database
   CWD_AUTH_KV: KVNamespace;
-  CWD_CONFIG_KV?: KVNamespace;
   ALLOW_ORIGIN: string
   CF_FROM_EMAIL?: string
   SEND_EMAIL?: {

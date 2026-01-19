@@ -1,8 +1,19 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL.replace(/\/+$/, '');
+const rawEnvApiBaseUrl = (import.meta.env.VITE_API_BASE_URL || '').trim();
+
+function getApiBaseUrl(): string {
+	const stored = (localStorage.getItem('cwd_admin_api_base_url') || '').trim();
+	const source = stored || rawEnvApiBaseUrl;
+	const apiBaseUrl = source.replace(/\/+$/, '');
+	if (!apiBaseUrl) {
+		throw new Error('未配置 API 地址，请在登录页填写后重试');
+	}
+	return apiBaseUrl;
+}
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
 async function request<T>(method: HttpMethod, path: string, body?: unknown): Promise<T> {
+	const apiBaseUrl = getApiBaseUrl();
 	const token = localStorage.getItem('cwd_admin_token');
 	const headers: HeadersInit = {};
 	if (body !== undefined) {
@@ -11,7 +22,7 @@ async function request<T>(method: HttpMethod, path: string, body?: unknown): Pro
 	if (token) {
 		headers['Authorization'] = `Bearer ${token}`;
 	}
-	const res = await fetch(`${API_BASE_URL}${path}`, {
+	const res = await fetch(`${apiBaseUrl}${path}`, {
 		method,
 		headers,
 		body: body !== undefined ? JSON.stringify(body) : undefined
@@ -44,4 +55,3 @@ export function put<T>(path: string, body?: unknown): Promise<T> {
 export function del<T>(path: string): Promise<T> {
 	return request<T>('DELETE', path);
 }
-

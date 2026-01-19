@@ -1,5 +1,0 @@
-ALLOW_ORIGIN="http://localhost:4321,https://blog.example.top"
-CF_FROM_EMAIL="noreply@yourdomain.com"
-EMAIL_ADDRESS="admin@example.top"
-ADMIN_NAME="Admin"
-ADMIN_PASSWORD="password"
