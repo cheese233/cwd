@@ -16,8 +16,8 @@
 <script>
   const comments = new CWDComments({
     el: '#comments', // 容器 id
-    apiBaseUrl: 'https://your-api.example.com', // 你部署的api地址
-    postSlug: 'my-post', // 当前页面路径，可使用博客程序支持的 url 模板路径
+    apiBaseUrl: 'https://your-api.example.com', // 你部署的 api 地址
+    postSlug: 'https://example.com/my-post', // 当前页面路径，可使用博客程序支持的 url 模板路径，或者直接使用 window.location.origin
   });
   comments.mount();
 </script>

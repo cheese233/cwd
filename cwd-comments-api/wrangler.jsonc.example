@@ -4,7 +4,7 @@
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "cwd-comments",
+	"name": "cwd-comments-api",
 	"main": "src/index.ts",
 	"compatibility_date": "2026-01-03",
 	"workers_dev": true,

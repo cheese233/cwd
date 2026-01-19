@@ -34,12 +34,16 @@ npm install
   ```bash
   npx wrangler login
   ```
+
 * **创建数据库和数据库表**，如果遇到提示，请按回车继续
+
   ```bash
   npx wrangler d1 create CWD_DB
   npx wrangler d1 execute CWD_DB --remote --file=./schemas/comment.sql
   ```
+
   运行完成后可以确认一下 `wrangler.jsonc` 中是否有如下配置
+  
   ```jsonc
   "d1_databases": [
       {
@@ -49,13 +53,17 @@ npm install
       }
   ]
   ```
+
   如果`binding`字段不是`CWD_DB`，请修改为`CWD_DB`
 
 * **创建 KV 存储**，如果遇到提示，按回车继续
+
   ```bash
   npx wrangler kv namespace create CWD_AUTH_KV
   ```
+
   运行完成后可以确认一下 `wrangler.jsonc` 中是否有如下配置
+
   ```jsonc
   "kv_namespaces": [
       {
@@ -64,12 +72,14 @@ npm install
       }
   ]
   ```
+
 * **部署上线**
+
   ```bash
   npm run deploy
   ```
 
-没有异常报错后，可以进入Cloudflare Workers 面板查看是否部署成功，若显示存在一个名称为 `cwd-backend-worker` 的项目即推送成功。
+没有异常报错后，可以进入 Cloudflare Workers 面板查看是否部署成功，若显示存在一个名称为 `cwd-comments-api` 的项目即推送成功。
 
 #### 3. 配置环境变量
 
@@ -79,30 +89,36 @@ npm install
 
 #### 4. 检测部署情况
 
-部署成功后回得到一个域名，即为后端的域名（格式一般为`https://cwd-backend-worker.xxx.workers.dev`。访问该域名，如果显示后端管理页面并可以正常登录则部署成功，将此域名填写到博客的配置文件中即可使用评论功能。
+部署成功后回得到一个域名，即为后端的域名（格式一般为`https://cwd-comments-api.xxx.workers.dev`。访问该域名，如果显示部署成功页面，说明 API 部署成功，可以到管理后台进行登录。
 
-当然也可以使用自定义域名，注意不要使用三级域名，即`*.*.example.com`。
+当然也可以使用自定义域名。
 
 ## 环境变量
 
-所需环境变量如下表所示，请参考源码中 `.dev.vars.example` 文件
+所需环境变量如下表所示。
 
-| 变量名               | 描述                                                                                 |
-| -------------------- | ------------------------------------------------------------------------------------ |
-| `CF_FROM_EMAIL`      | 作为发件人显示的邮箱地址（需在 Cloudflare Email 路由中预先配置）                    |
-| `EMAIL_ADDRESS`      | 管理员接收通知邮件的默认邮箱（可在后台设置中覆盖）                                  |
-| `ADMIN_NAME`         | 管理员登录名称，默认为 admin                                                         |
-| `ADMIN_PASSWORD`     | 管理员登录密码，默认密码为 password                                                  |
+| 变量名           | 描述                                                             |
+| ---------------- | ---------------------------------------------------------------- |
+| `ADMIN_NAME`     | 管理员登录名称                                                   |
+| `ADMIN_PASSWORD` | 管理员登录密码                                                   |
+| `CF_FROM_EMAIL`  | 作为发件人显示的邮箱地址（需在 Cloudflare Email 路由中预先配置） |
+| `EMAIL_ADDRESS`  | 管理员接收通知邮件的默认邮箱（可在后台设置中覆盖）               |
 
-**注:** 需要在 Cloudflare 控制面板中为 Email 路由开启发送权限并配置发件人域和地址，并在 `wrangler.jsonc` 中为 Worker 添加 `send_email` 绑定，以便在代码中通过 `env.SEND_EMAIL.send()` 直接发信。
+**注：** 需要在 Cloudflare 控制面板中为 Email 路由开启发送权限并配置发件人域和地址，并在 `wrangler.jsonc` 中为 Worker 添加 `send_email` 绑定，以便在代码中通过 `env.SEND_EMAIL.send()` 直接发信。
 
+## 发信设置
 
-## 本地测试
+手动在 `wrangler.jsonc` 中添加 `send_email` 绑定，以便在代码中通过 `env.SEND_EMAIL.send()` 直接发信。
 
-如果需要本地测试，环境变量可以使用 `.dev.vars` 文件来设置
-
-```bash
-cp .dev.vars.example .dev.vars
-# 编辑 .dev.vars 文件
-npm run dev
+```jsonc
+{
+  ...
+  "send_email": [
+    {
+      "name": "SEND_EMAIL",
+      "destination_address": "hi@zishu.me"
+    }
+  ],
+  ...
+}
 ```

@@ -5,14 +5,16 @@
 
 Cloudflare Worker 版本基于 Cloudflare Workers + D1 + KV 实现，无需服务器即可部署运行的评论组件。
 
-[文档地址](https://cwd-comments.zishu.me)
+[文档地址](https://cwd-comments-docs.zishu.me)
 
 ## 特性
 
 - ⚡️ **极速响应**：基于 Cloudflare 全球边缘网络
 - 🔒 **安全可靠**：内置管理员认证、CORS 保护
-- 📧 **邮件通知**：基于 Cloudflare Workers 发送邮件
 - 🎨 **易于集成**：提供完整的 REST API
+
+**开发中：**
+- [ ]📧 **邮件通知**：基于 Cloudflare Workers 发送邮件
 
 ## 前置要求
 

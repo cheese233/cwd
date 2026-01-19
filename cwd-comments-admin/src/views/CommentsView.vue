@@ -17,63 +17,63 @@
     <div v-if="loading" class="page-hint">加载中...</div>
     <div v-else-if="error" class="page-error">{{ error }}</div>
     <div v-else>
-      <div class="comment-list">
-        <div
-          v-for="item in filteredComments"
-          :key="item.id"
-          class="comment-card"
-        >
-          <div class="comment-card-header">
-            <div class="comment-author">
-              <div class="comment-author-name">
-                {{ item.author }}
-              </div>
-              <div class="comment-author-email">
-                {{ item.email }}
-              </div>
-            </div>
-            <div class="comment-meta">
-              <span class="comment-path">{{ item.postSlug }}</span>
-              <span class="comment-time">{{ formatDate(item.pubDate) }}</span>
-            </div>
+      <div class="comment-table">
+        <div class="table-header">
+          <div class="table-cell table-cell-id">ID</div>
+          <div class="table-cell table-cell-author">作者</div>
+          <div class="table-cell table-cell-content">内容</div>
+          <div class="table-cell table-cell-path">路径</div>
+          <div class="table-cell table-cell-time">时间</div>
+          <div class="table-cell table-cell-status">状态</div>
+          <div class="table-cell table-cell-actions">操作</div>
+        </div>
+        <div v-for="item in filteredComments" :key="item.id" class="table-row">
+          <div class="table-cell table-cell-id">
+            <span class="cell-id">#{{ item.id }}</span>
           </div>
-          <div class="comment-content">
-            {{ item.contentText }}
+          <div class="table-cell table-cell-author">
+            <div class="cell-author-name">{{ item.author }}</div>
+            <div class="cell-author-email">{{ item.email }}</div>
           </div>
-          <div class="comment-footer">
-            <div class="comment-info">
-              <span class="comment-id">#{{ item.id }}</span>
-              <span
-                class="comment-status"
-                :class="`comment-status-${item.status}`"
-              >
-                {{ formatStatus(item.status) }}
-              </span>
-            </div>
-            <div class="comment-actions">
+          <div class="table-cell table-cell-content">
+            <div class="cell-content-text">{{ item.contentText }}</div>
+          </div>
+          <div class="table-cell table-cell-path">
+            <span class="cell-path" :title="item.postSlug">{{ item.postSlug }}</span>
+          </div>
+          <div class="table-cell table-cell-time">
+            <span class="cell-time">{{ formatDate(item.pubDate) }}</span>
+          </div>
+          <div class="table-cell table-cell-status">
+            <span class="cell-status" :class="`cell-status-${item.status}`">
+              {{ formatStatus(item.status) }}
+            </span>
+          </div>
+          <div class="table-cell table-cell-actions">
+            <div class="table-actions">
               <button
-                class="comment-action"
+                class="table-action"
                 @click="changeStatus(item, 'approved')"
                 :disabled="item.status === 'approved'"
               >
                 通过
               </button>
               <button
-                class="comment-action"
+                class="table-action"
                 @click="changeStatus(item, 'pending')"
                 :disabled="item.status === 'pending'"
               >
                 待审
               </button>
               <button
-                class="comment-action"
+                class="table-action"
                 @click="changeStatus(item, 'rejected')"
                 :disabled="item.status === 'rejected'"
               >
                 拒绝
               </button>
               <button
-                class="comment-action comment-action-danger"
+                class="table-action table-action-danger"
                 @click="removeComment(item)"
               >
                 删除
@@ -81,10 +81,7 @@
             </div>
           </div>
         </div>
-        <div
-          v-if="filteredComments.length === 0"
-          class="page-hint comment-empty"
-        >
+        <div v-if="filteredComments.length === 0" class="table-empty">
           暂无数据
         </div>
       </div>
@@ -220,7 +217,7 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin: 0;
 }
 
 .toolbar-left {
@@ -236,6 +233,9 @@ onMounted(() => {
 .toolbar-select {
   padding: 4px 8px;
   font-size: 13px;
+  border: 1px solid #d0d7de;
+  border-radius: 4px;
+  background-color: #ffffff;
 }
 
 .toolbar-button {
@@ -257,182 +257,192 @@ onMounted(() => {
   color: #d1242f;
 }
 
-.comment-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.comment-card {
+.comment-table {
   background-color: #ffffff;
-  border-radius: 6px;
   border: 1px solid #d0d7de;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.table-header {
+  display: flex;
+  background-color: #f6f8fa;
+  border-bottom: 1px solid #d0d7de;
+}
+
+.table-row {
+  display: flex;
+  border-bottom: 1px solid #eaeae0;
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+.table-row:hover {
+  background-color: #f8f9fa;
+}
+
+.table-cell {
   padding: 10px 12px;
-  box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04);
-}
-
-.comment-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
-  margin-bottom: 8px;
-}
-
-.comment-author {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.comment-author-name {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 13px;
   color: #24292f;
+  display: flex;
+  align-items: center;
 }
 
-.comment-author-email {
+.table-cell-id {
+  width: 50px;
+  flex-shrink: 0;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.table-cell-author {
+  width: 180px;
+  flex-direction: column;
+  align-items: flex-start !important;
+  flex-shrink: 0;
+}
+
+.table-cell-content {
+  flex: 1;
+  min-width: 200px;
+}
+
+.table-cell-path {
+  width: 160px;
+  flex-shrink: 0;
+}
+
+.table-cell-time {
+  width: 150px;
+  flex-shrink: 0;
+}
+
+.table-cell-status {
+  width: 80px;
+  flex-shrink: 0;
+  justify-content: center;
+  align-items: center;
+}
+
+.table-cell-actions {
+  width: 240px;
+  flex-shrink: 0;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.table-header .table-cell {
+  font-weight: 500;
+  color: #57606a;
+  align-items: center;
+}
+
+.cell-id {
   font-size: 12px;
+  color: #57606a;
+}
+
+.cell-author-name {
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.cell-author-email {
+  font-size: 11px;
   color: #57606a;
   word-break: break-all;
 }
 
-.comment-meta {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
-  font-size: 12px;
-  color: #57606a;
+.cell-content-text {
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 60px;
+  overflow-y: auto;
 }
 
-.comment-path {
-  max-width: 220px;
+.cell-path {
+  font-size: 12px;
+  color: #57606a;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.comment-time {
-  white-space: nowrap;
-}
-
-.comment-content {
-  font-size: 14px;
-  line-height: 1.6;
-  color: #24292f;
-  margin-bottom: 8px;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-.comment-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.comment-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.cell-time {
   font-size: 12px;
   color: #57606a;
 }
 
-.comment-id {
-  padding: 2px 6px;
+.cell-status {
+  padding: 3px 8px;
   border-radius: 999px;
-  background-color: #f6f8fa;
+  font-size: 11px;
+  font-weight: 500;
 }
 
-.comment-status {
-  padding: 2px 8px;
-  border-radius: 999px;
-  background-color: #f6f8fa;
-}
-
-.comment-status-approved {
+.cell-status-approved {
   color: #1a7f37;
   background-color: #e7f5eb;
 }
 
-.comment-status-pending {
+.cell-status-pending {
   color: #9a6700;
   background-color: #fff8c5;
 }
 
-.comment-status-rejected {
+.cell-status-rejected {
   color: #d1242f;
   background-color: #ffebe9;
 }
 
-.comment-actions {
+.table-actions {
   display: flex;
-  flex-wrap: wrap;
   gap: 4px;
+  flex-wrap: wrap;
 }
 
-.comment-action {
-  padding: 4px 8px;
+.table-action {
+  padding: 3px 8px;
   border-radius: 4px;
   border: 1px solid #d0d7de;
-  background-color: #f6f8fa;
-  font-size: 12px;
+  background-color: #ffffff;
+  font-size: 11px;
   cursor: pointer;
 }
 
-.comment-action-danger {
+.table-action:hover {
+  background-color: #f6f8fa;
+}
+
+.table-action:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.table-action-danger {
   border-color: #d1242f;
   color: #d1242f;
 }
 
-.comment-action:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.table-action-danger:hover {
+  background-color: #ffebe9;
 }
 
-.comment-empty {
-  margin-top: 8px;
+.table-empty {
+  padding: 32px;
   text-align: center;
-}
-
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 0;
-  gap: 12px;
-}
-
-.loading-spinner {
-  width: 32px;
-  height: 32px;
-  border: 3px solid #f0f0f0;
-  border-top-color: #0969da;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-.loading-text {
-  font-size: 14px;
   color: #57606a;
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+  font-size: 13px;
 }
 
 .pagination {
-  margin-top: 8px;
+  margin-top: 20px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -447,7 +457,13 @@ onMounted(() => {
   cursor: pointer;
 }
 
+.pagination-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .pagination-info {
   font-size: 13px;
+  color: #57606a;
 }
 </style>
