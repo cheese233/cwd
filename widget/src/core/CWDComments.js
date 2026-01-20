@@ -157,9 +157,7 @@ export class CWDComments {
 			if (serverConfig.adminEnabled && serverConfig.adminBadge) {
 				this.config.adminBadge = serverConfig.adminBadge;
 			}
-			if (typeof serverConfig.requireReview === 'boolean') {
-				this.config.requireReview = serverConfig.requireReview;
-			}
+			this.config.requireReview = !!serverConfig.requireReview;
 
 			const api = createApiClient(this.config);
 			this.api = api;

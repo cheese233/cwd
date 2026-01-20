@@ -191,7 +191,7 @@ export function createCommentStore(config, fetchComments, submitComment) {
 		});
 
 		try {
-			await submitComment({
+			const result = await submitComment({
 				name: form.name,
 				email: form.email,
 				url: form.url,
@@ -199,9 +199,12 @@ export function createCommentStore(config, fetchComments, submitComment) {
 				adminToken: auth.getToken() // Add token if exists
 			});
 
-			const successMessage = config.requireReview
-				? '已提交评论，待管理员审核后显示'
-				: '评论已提交';
+			const successMessage =
+				result && typeof result.message === 'string'
+					? result.message
+					: config.requireReview
+						? '已提交评论，待管理员审核后显示'
+						: '评论已提交';
 
 			store.setState({
 				form: { ...form, content: '' },

@@ -230,7 +230,18 @@ export const postComment = async (c: Context<{ Bindings: Bindings }>) => {
         }
       })());
     }
-    return c.json({ message: "Comment submitted. Awaiting moderation." });
+
+    if (defaultStatus === "pending") {
+      return c.json({
+        message: '已提交评论，待管理员审核后显示',
+        status: defaultStatus
+      });
+    }
+
+    return c.json({
+      message: '评论已提交',
+      status: defaultStatus
+    });
 
   } catch (e: any) {
     console.error("Create Comment Error:", e);
