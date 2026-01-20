@@ -1,5 +1,7 @@
 import { Context } from 'hono';
 import { UAParser } from 'ua-parser-js';
+import { marked } from 'marked';
+import xss from 'xss';
 import { Bindings } from '../../bindings';
 import {
   sendCommentNotification,
@@ -67,11 +69,12 @@ export const postComment = async (c: Context<{ Bindings: Bindings }>) => {
   `).run();
 
   // 3. 准备数据
-  const contentText = checkContent(rawContent);
+  const cleanedContent = checkContent(rawContent);
+  const contentText = cleanedContent;
   const author = checkContent(rawAuthor);
 
   // Markdown 渲染与 XSS 过滤
-  const html = await marked.parse(rawContent, { async: true });
+  const html = await marked.parse(cleanedContent, { async: true });
   const contentHtml = xss(html, {
     whiteList: {
       ...xss.whiteList,
