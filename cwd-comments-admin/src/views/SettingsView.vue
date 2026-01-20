@@ -28,7 +28,7 @@
           </label>
         </div>
         <div class="form-item">
-          <label class="form-label">头像前缀（Gravatar/Cravatar）</label>
+          <label class="form-label">头像前缀（默认：https://gravatar.com/avatar）</label>
           <input v-model="avatarPrefix" class="form-input" type="text" />
         </div>
         <div class="card-actions">

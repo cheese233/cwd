@@ -4,23 +4,67 @@ import { Bindings } from '../../bindings';
 export const importComments = async (c: Context<{ Bindings: Bindings }>) => {
 	try {
 		const body = await c.req.json();
-		const comments = Array.isArray(body) ? body : [body];
+		const rawComments = Array.isArray(body) ? body : [body];
 
-		if (comments.length === 0) {
+		if (rawComments.length === 0) {
 			return c.json({ message: '导入数据为空' }, 400);
 		}
 
+        // 映射 Twikoo 数据结构到 CWD 结构
+        const comments = rawComments.map((item: any) => {
+            // 简单的特征检测：如果有 href/nick/mail/comment 且没有 post_slug/name (或者我们优先尝试映射)
+            // 这里的判断标准：如果包含 Twikoo 特有的字段名，则进行映射
+            const isTwikoo = item.href !== undefined || item.nick !== undefined || item.comment !== undefined;
+            
+            if (isTwikoo) {
+                // 处理 ID: 如果 _id 是数字则保留，否则丢弃（让数据库自增）
+                // Twikoo 的 _id 通常是 ObjectId 字符串，无法直接存入 INTEGER PRIMARY KEY
+                // 除非 _id 恰好是数字
+                let id = undefined;
+                if (typeof item._id === 'number') {
+                    id = item._id;
+                } else if (typeof item._id === 'string' && /^\d+$/.test(item._id)) {
+                    id = parseInt(item._id, 10);
+                }
+
+                // 处理时间
+                let created = Date.now();
+                if (item.created) {
+                    // 支持时间戳或 ISO 字符串
+                    created = new Date(item.created).getTime();
+                }
+
+                return {
+                    id, // 可能为 undefined
+                    created, // >>> created
+                    post_slug: item.href || "", // >>> href
+                    name: item.nick || "Anonymous", // >>> nick
+                    email: item.mail || "", // >>> mail
+                    url: item.link || null, // >>> link
+                    ip_address: item.ip || null, // >>> ip
+                    device: null, // >>> 保持空
+                    os: null, // >>> 保持空
+                    browser: null, // >>> 保持空
+                    ua: item.ua || null, // >>> ua
+                    content_text: item.comment || "", // >>> comment
+                    content_html: item.comment || "", // >>> comment
+                    parent_id: null, // >>> 保持 null
+                    status: "approved" // >>> approved
+                };
+            }
+            
+            // 否则假设已经是 CWD 格式
+            return item;
+        });
+
         // 按 ID 升序排序，防止因外键约束导致插入失败（子评论先于父评论插入）
+        // 对于 Twikoo 导入，id 可能不存在，或者被重置。
+        // 如果 parent_id 全部为 null，则排序其实不重要（没有依赖）。
         comments.sort((a: any, b: any) => {
             const idA = a.id || 0;
             const idB = b.id || 0;
             return idA - idB;
         });
-
-		// 简单的验证，确保至少包含必要字段
-		// 实际上 Twikoo 的导出格式可能不同，但用户提供的 JSON 结构与 cwd-comments 几乎一致
-		// 我们假设用户已经转换或者这就是他们想要的格式
-        // 如果字段名不匹配，可能需要做映射。既然用户给出了明确的 JSON 结构，我们直接按照这个结构处理。
 
 		const stmts = comments.map((comment: any) => {
 			const {
@@ -41,12 +85,6 @@ export const importComments = async (c: Context<{ Bindings: Bindings }>) => {
 				status
 			} = comment;
 
-            // 如果 id 存在，我们尝试保留它。如果冲突，可能需要处理（这里暂且假设是空库导入或者不冲突）
-            // 如果是导入 Twikoo，通常 Twikoo 没有 id (是 _id ObjectId)，或者是其他格式。
-            // 但按照用户给的 JSON，是有 id 的。
-            
-            // 构建 SQL。
-            // 能够处理 id 存在或不存在的情况
             const fields = [
                 'created', 'post_slug', 'name', 'email', 'url',
                 'ip_address', 'device', 'os', 'browser', 'ua',
@@ -69,7 +107,7 @@ export const importComments = async (c: Context<{ Bindings: Bindings }>) => {
                 status || "approved"
             ];
 
-            if (id) {
+            if (id !== undefined && id !== null) {
                 fields.unshift('id');
                 values.unshift(id);
             }
@@ -80,10 +118,7 @@ export const importComments = async (c: Context<{ Bindings: Bindings }>) => {
             return c.env.CWD_DB.prepare(sql).bind(...values);
 		});
 
-		// D1 的 batch 限制一次最多 100 条? 或者是 body size 限制。
-        // 如果数量很大，需要分批。这里先假设数量不多，直接 batch。
-        // 为了安全起见，可以分批处理，比如每 50 条。
-        
+        // 批量执行，每批 50 条
         const BATCH_SIZE = 50;
         for (let i = 0; i < stmts.length; i += BATCH_SIZE) {
             const batch = stmts.slice(i, i + BATCH_SIZE);
