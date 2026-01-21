@@ -17,23 +17,29 @@ hero:
 
 features:
   - icon: ⚡️
-    title: 极速响应
-    details: 基于 Cloudflare 全球边缘网络，毫秒级响应、自动扩缩容
+    title: 全球边缘加速
+    details: 基于 Cloudflare 全球 300+ 节点网络，毫秒级响应，自动扩缩容，无需管理服务器
   - icon: 💬
-    title: 完整评论能力
-    details: 支持嵌套回复、分页加载、Markdown 与访客信息收集
+    title: 完善评论体系
+    details: 支持无限嵌套回复、分页加载、Markdown 渲染、富文本支持与访客信息记忆
   - icon: 🔔
-    title: 邮件通知
-    details: 评论与回复邮件提醒，支持多种邮箱服务商
+    title: 智能邮件通知
+    details: 新评论、回复提醒实时推送，支持自定义邮件模板，兼容各大邮箱服务商
+  - icon: 📊
+    title: 可视化数据看板
+    details: 评论趋势分析、访问统计、用户画像洞察，全方位了解站点互动情况
+  - icon: 🛡️
+    title: 多维度内容风控
+    details: 手动审核机制、IP 屏蔽、邮箱黑名单，有效防范垃圾评论与恶意攻击
+  - icon: 🔄
+    title: 便捷数据迁移
+    details: 一键导入其他评论系统数据，无缝切换，保留历史互动记录
   - icon: 🔒
-    title: 安全可靠
-    details: 管理员后台、登录鉴权、CORS 与 SQL 注入防护
-  - icon: 🎨
-    title: 易于集成
-    details: 一行脚本嵌入，提供完整 REST API，适配任意前端框架
-  - icon: 🛠
-    title: 轻松运维
-    details: 一键部署到 Cloudflare Workers + D1 + KV，零服务器成本
+    title: 企业级安全
+    details: 管理员鉴权、CORS 跨域保护、SQL 注入防护，全方位保障数据安全
+  - icon: 🔌
+    title: 灵活 API 集成
+    details: 提供完整 REST API 与 SDK，一行代码嵌入，适配 Vue、React 等任意框架
 ---
 
 <style>
