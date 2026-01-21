@@ -13,6 +13,7 @@ export default [
 		items: [
 			{ text: '后台设置', link: '/function/admin-panel' },
 			{ text: '通知邮箱', link: '/function/email-reminder' },
+			{ text: '安全设置', link: '/function/security-settings' },
 			{ text: '数据迁移', link: '/function/data-migration' },
 		],
 	},

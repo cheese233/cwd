@@ -1,11 +1,13 @@
 > [!WARNING]  
-> 目前仍处于 Beta 测试阶段，欢迎反馈测试结果。
+> ~~目前仍处于 Beta 测试阶段，欢迎反馈测试结果。~~
+> 
+> 目前处于内测阶段，欢迎参与测试。
 
 <img src="https://github.com/anghunk/cwd-comments/blob/main/icon.png?raw=true" width="72" />
 
 # cwd-comments
 
-Cloudflare Worker 版本基于 Cloudflare Workers + D1 + KV 实现，无需服务器即可部署运行的评论组件。
+基于 Cloudflare Workers 与全球边缘网络的免服务器、极速安全、即插即用评论系统。
 
 [文档地址](https://cwd-comments-docs.zishu.me)
 
