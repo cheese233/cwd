@@ -12,3 +12,5 @@
 [文档地址](https://cwd-docs.zishu.me)
 
 ![preview](https://github.com/user-attachments/assets/6ac091d8-e349-4d40-9d68-485817f63236)
+
+开源协议：[Apache-2.0](./LICENSE)
