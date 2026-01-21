@@ -184,7 +184,7 @@
           <textarea
             v-model="templateAdmin"
             class="form-input"
-            rows="6"
+            rows="10"
             placeholder="留空则使用默认模板"
           ></textarea>
         </div>
@@ -199,7 +199,7 @@
           <textarea
             v-model="templateReply"
             class="form-input"
-            rows="6"
+            rows="10"
             placeholder="留空则使用默认模板"
           ></textarea>
         </div>
@@ -575,12 +575,12 @@ onMounted(() => {
 
 .card-title {
   margin: 0 0 12px;
-  font-size: 15px;
+  font-size: 16px;
 }
 
 .card-subtitle {
   margin: 0 0 12px;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   color: #24292f;
 }

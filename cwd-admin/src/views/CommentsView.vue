@@ -17,7 +17,7 @@
         </select>
       </div>
       <div class="toolbar-right">
-        <button class="toolbar-button" @click="loadComments">刷新</button>
+        <button class="toolbar-button" @click="goPage(1)">刷新</button>
       </div>
     </div>
     <div v-if="loading" class="page-hint">加载中...</div>
@@ -421,6 +421,7 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   margin: 0;
+  gap: 8px;
 }
 
 .toolbar-left {
@@ -434,7 +435,8 @@ onMounted(() => {
 }
 
 .toolbar-select {
-  padding: 4px 8px;
+  padding: 8px 8px;
+  box-sizing: border-box;
   font-size: 13px;
   border: 1px solid #d0d7de;
   border-radius: 4px;
@@ -447,7 +449,8 @@ onMounted(() => {
   border: 1px solid #d0d7de;
   background-color: #f6f8fa;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 14px;
+  min-width: 70px;
 }
 
 .page-hint {
