@@ -19,7 +19,7 @@ export default defineConfig({
 		nav,
 		sidebar,
 		outline: {
-			level: 'deep',
+			level: [2,3],
 			label: 'On this page',
 		},
 		editLink: {

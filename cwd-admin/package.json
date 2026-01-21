@@ -1,22 +1,23 @@
 {
-	"name": "cwd-admin",
-	"version": "0.0.1",
-	"private": true,
-	"type": "module",
-	"scripts": {
-		"dev": "vite",
-		"build": "vite build",
-		"preview": "vite preview"
-	},
-	"dependencies": {
-		"vue": "^3.5.13",
-		"vue-router": "^4.4.5"
-	},
-	"devDependencies": {
-		"@vitejs/plugin-vue": "^5.1.4",
-		"typescript": "^5.5.2",
-		"vite": "^6.0.11",
-		"vue-tsc": "^2.1.10"
-	}
+  "name": "cwd-admin",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "preview": "vite preview",
+    "build:admin": "vite build",
+    "build:widget": "cd widget && npm install && npm run build",
+    "build": "npm run build:widget &&npm run build:admin"
+  },
+  "dependencies": {
+    "vue": "^3.5.13",
+    "vue-router": "^4.4.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.1.4",
+    "typescript": "^5.5.2",
+    "vite": "^6.0.11",
+    "vue-tsc": "^2.1.10"
+  }
 }
-
