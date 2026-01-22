@@ -126,6 +126,8 @@ export function createCommentStore(config, fetchComments, submitComment) {
 		replyingTo: null,
 		replyContent: '',
 		replyError: null,
+		likeCount: 0,
+		liked: false,
 	});
 
 	// 监听用户信息变化，自动保存到 localStorage
@@ -163,6 +165,14 @@ export function createCommentStore(config, fetchComments, submitComment) {
 				loading: false,
 			});
 		}
+	}
+
+	function setLikeState(likeCount, liked) {
+		const safeCount = typeof likeCount === 'number' && Number.isFinite(likeCount) && likeCount >= 0 ? likeCount : 0;
+		store.setState({
+			likeCount: safeCount,
+			liked: !!liked,
+		});
 	}
 
 	/**
@@ -362,7 +372,7 @@ export function createCommentStore(config, fetchComments, submitComment) {
 		}
 	}
 
-	return {
+		return {
 		// Store 实例
 		store,
 
@@ -384,5 +394,6 @@ export function createCommentStore(config, fetchComments, submitComment) {
 		clearError,
 		clearSuccess,
 		goToPage,
+		setLikeState,
 	};
 }

@@ -42,10 +42,17 @@ export class CWDComments {
 		this.mountPoint = null;
 		this.commentForm = null;
 		this.commentList = null;
+		this.formContainer = null;
 		this.store = null;
 		this.unsubscribe = null;
+		this.likeState = {
+			count: 0,
+			liked: false,
+			loading: false
+		};
+		this._likeButtonEl = null;
+		this._likeCountEl = null;
 
-		// 初始加载标志
 		this._mounted = false;
 	}
 
@@ -181,6 +188,24 @@ export class CWDComments {
 			if (this.api && typeof this.api.trackVisit === 'function') {
 				this.api.trackVisit();
 			}
+
+			if (this.api && typeof this.api.getLikeStatus === 'function') {
+				try {
+					const likeResult = await this.api.getLikeStatus();
+					const count =
+						likeResult && typeof likeResult.totalLikes === 'number'
+							? likeResult.totalLikes
+							: 0;
+					const liked = !!(likeResult && likeResult.liked);
+					this.likeState.count = count;
+					this.likeState.liked = liked;
+					if (this.store && typeof this.store.setLikeState === 'function') {
+						this.store.setLikeState(count, liked);
+					}
+					this._updateLikeButton();
+				} catch (e) {
+				}
+			}
 		})();
 
 		this._mounted = true;
@@ -235,21 +260,7 @@ export class CWDComments {
 		}
 
 		const state = this.store.store.getState();
-
-		// 创建评论表单
-		if (!this.commentForm) {
-			this.commentForm = new CommentForm(this.mountPoint, {
-				form: state.form,
-				formErrors: state.formErrors,
-				submitting: state.submitting,
-				onSubmit: () => this._handleSubmit(),
-				onFieldChange: (field, value) => this.store.updateFormField(field, value),
-				adminEmail: this.config.adminEmail,
-				onVerifyAdmin: (key) => this.api.verifyAdminKey(key)
-			});
-			this.commentForm.render();
-		}
-
+ 
 		// 创建错误提示
 		const existingError = this.mountPoint.querySelector('.cwd-error-inline');
 		if (state.error) {
@@ -301,12 +312,43 @@ export class CWDComments {
         <h3 class="cwd-comments-count">
           共 <span class="cwd-comments-count-number">0</span> 条评论
         </h3>
+        <div class="cwd-like">
+          <button type="button" class="cwd-like-button" data-liked="false">
+            <span class="cwd-like-icon-wrapper">
+              <svg class="cwd-like-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 21c-.4 0-.8-.1-1.1-.4L4.5 15C3 13.6 2 11.7 2 9.6 2 6.5 4.5 4 7.6 4c1.7 0 3.3.8 4.4 2.1C13.1 4.8 14.7 4 16.4 4 19.5 4 22 6.5 22 9.6c0 2.1-1 4-2.5 5.4l-6.4 5.6c-.3.3-.7.4-1.1.4z"></path>
+              </svg>
+            </span>
+            <span class="cwd-like-count">0</span>
+          </button>
+        </div>
       `;
 			this.mountPoint.appendChild(header);
 		}
 		const countEl = header.querySelector('.cwd-comments-count-number');
 		if (countEl) {
 			countEl.textContent = state.pagination.totalCount;
+		}
+
+		this._initLikeButton(header);
+
+		if (!this.formContainer) {
+			this.formContainer = document.createElement('div');
+			this.mountPoint.appendChild(this.formContainer);
+		}
+
+		// 创建评论表单（放在点赞区域下方，使用单独容器以保证顺序）
+		if (!this.commentForm) {
+			this.commentForm = new CommentForm(this.formContainer, {
+				form: state.form,
+				formErrors: state.formErrors,
+				submitting: state.submitting,
+				onSubmit: () => this._handleSubmit(),
+				onFieldChange: (field, value) => this.store.updateFormField(field, value),
+				adminEmail: this.config.adminEmail,
+				onVerifyAdmin: (key) => this.api.verifyAdminKey(key)
+			});
+			this.commentForm.render();
 		}
 
 		// 创建评论列表
@@ -418,6 +460,21 @@ export class CWDComments {
 			countEl.textContent = state.pagination.totalCount;
 		}
 
+		if (typeof state.likeCount === 'number' || typeof state.liked === 'boolean') {
+			if (typeof state.likeCount === 'number') {
+				this.likeState.count = state.likeCount;
+			}
+			if (typeof state.liked === 'boolean') {
+				this.likeState.liked = state.liked;
+			}
+			if (header) {
+				if (!this._likeButtonEl || !this._likeCountEl) {
+					this._initLikeButton(header);
+				}
+				this._updateLikeButton();
+			}
+		}
+
 		// 更新评论列表
 		if (this.commentList) {
 			this.commentList.setProps({
@@ -492,6 +549,111 @@ export class CWDComments {
 
 			this.store.loadComments();
 		}
+	}
+
+	_initLikeButton(header) {
+		if (!header) {
+			return;
+		}
+		if (!this._likeButtonEl) {
+			this._likeButtonEl = header.querySelector('.cwd-like-button');
+			if (this._likeButtonEl) {
+				this._likeButtonEl.addEventListener('click', () => {
+					this._handleLikeClick();
+				});
+			}
+		}
+		if (!this._likeCountEl) {
+			this._likeCountEl = header.querySelector('.cwd-like-count');
+		}
+		this._updateLikeButton();
+	}
+
+	_updateLikeButton(animate = false) {
+		if (!this._likeButtonEl) {
+			if (!this.mountPoint) {
+				return;
+			}
+			const header = this.mountPoint.querySelector('.cwd-comments-header');
+			if (!header) {
+				return;
+			}
+			this._initLikeButton(header);
+		}
+		if (!this._likeButtonEl) {
+			return;
+		}
+		const state = this.store?.store?.getState();
+		const liked = state ? !!state.liked : this.likeState.liked;
+		const count =
+			state && typeof state.likeCount === 'number'
+				? state.likeCount
+				: this.likeState.count;
+		this.likeState.count = count;
+		this.likeState.liked = liked;
+		this._likeButtonEl.dataset.liked = liked ? 'true' : 'false';
+		this._likeButtonEl.dataset.loading = this.likeState.loading ? 'true' : 'false';
+		if (this._likeCountEl) {
+			this._likeCountEl.textContent = String(count);
+		}
+		if (animate && this._likeButtonEl) {
+			this._likeButtonEl.classList.remove('cwd-like-animate');
+			void this._likeButtonEl.offsetWidth;
+			this._likeButtonEl.classList.add('cwd-like-animate');
+		}
+	}
+
+	_handleLikeClick() {
+		if (!this.api || typeof this.api.likePage !== 'function') {
+			return;
+		}
+		if (this.likeState.loading) {
+			return;
+		}
+		const currentState = this.store?.store?.getState();
+		const currentCount =
+			currentState && typeof currentState.likeCount === 'number'
+				? currentState.likeCount
+				: this.likeState.count;
+		const wasLiked = currentState ? !!currentState.liked : this.likeState.liked;
+		if (wasLiked) {
+			return;
+		}
+		const nextCount = currentCount + 1;
+		this.likeState.loading = true;
+		this.likeState.count = nextCount;
+		this.likeState.liked = true;
+		if (this.store && typeof this.store.setLikeState === 'function') {
+			this.store.setLikeState(nextCount, true);
+		}
+		this._updateLikeButton(true);
+		this.api
+			.likePage()
+			.then((result) => {
+				const total =
+					result && typeof result.totalLikes === 'number'
+						? result.totalLikes
+						: nextCount;
+				const liked = !!(result && result.liked);
+				this.likeState.count = total;
+				this.likeState.liked = liked;
+				if (this.store && typeof this.store.setLikeState === 'function') {
+					this.store.setLikeState(total, liked);
+				}
+				this._updateLikeButton();
+			})
+			.catch(() => {
+				this.likeState.count = currentCount;
+				this.likeState.liked = wasLiked;
+				if (this.store && typeof this.store.setLikeState === 'function') {
+					this.store.setLikeState(currentCount, wasLiked);
+				}
+				this._updateLikeButton();
+			})
+			.finally(() => {
+				this.likeState.loading = false;
+				this._updateLikeButton();
+			});
 	}
 
 	/**

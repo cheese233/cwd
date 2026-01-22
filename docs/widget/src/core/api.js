@@ -11,8 +11,26 @@
  * @param {string} config.postUrl - 文章 URL（可选）
  * @returns {Object}
  */
-	export function createApiClient(config) {
+export function createApiClient(config) {
 	const baseUrl = config.apiBaseUrl.replace(/\/$/, '');
+
+	function getLikeUserId() {
+		try {
+			const storageKey = 'cwd_like_uid';
+			let token = localStorage.getItem(storageKey);
+			if (!token) {
+				if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+					token = crypto.randomUUID();
+				} else {
+					token = `${Date.now()}_${Math.random().toString(16).slice(2)}`;
+				}
+				localStorage.setItem(storageKey, token);
+			}
+			return token;
+		} catch (e) {
+			return 'anonymous';
+		}
+	}
 
 	/**
 	 * 获取评论列表
@@ -114,10 +132,58 @@
         }
     }
 
+    async function getLikeStatus() {
+        const params = new URLSearchParams({
+            post_slug: config.postSlug
+        });
+        const headers = {
+            'X-CWD-Like-User': getLikeUserId()
+        };
+        const response = await fetch(`${baseUrl}/api/like?${params.toString()}`, {
+            method: 'GET',
+            headers
+        });
+        if (!response.ok) {
+            return {
+                liked: false,
+                alreadyLiked: false,
+                totalLikes: 0
+            };
+        }
+        return response.json();
+    }
+
+    async function likePage() {
+        const headers = {
+            'Content-Type': 'application/json',
+            'X-CWD-Like-User': getLikeUserId()
+        };
+        const response = await fetch(`${baseUrl}/api/like`, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({
+                postSlug: config.postSlug,
+                postTitle: config.postTitle,
+                postUrl: config.postUrl
+            })
+        });
+        if (!response.ok) {
+            let msg = response.statusText;
+            try {
+                const json = await response.json();
+                if (json.message) msg = json.message;
+            } catch (e) {}
+            throw new Error(msg);
+        }
+        return response.json();
+    }
+
 	return {
 		fetchComments,
 		submitComment,
         verifyAdminKey,
-        trackVisit
+        trackVisit,
+        getLikeStatus,
+        likePage
 	};
 }

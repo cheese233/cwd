@@ -26,6 +26,9 @@ import { getStats } from './api/admin/getStats';
 import { getDomains } from './api/admin/getDomains';
 import { trackVisit } from './api/public/trackVisit';
 import { getVisitOverview, getVisitPages } from './api/admin/visitAnalytics';
+import { getLikeStatus, likePage } from './api/public/like';
+import { listLikes } from './api/admin/listLikes';
+import { getLikeStats } from './api/admin/likeStats';
 
 const app = new Hono<{ Bindings: Bindings }>();
 const VERSION = `v${packageJson.version}`;
@@ -218,6 +221,8 @@ app.get('/api/comments', getComments);
 app.post('/api/comments', postComment);
 app.post('/api/verify-admin', verifyAdminKey);
 app.post('/api/analytics/visit', trackVisit);
+app.get('/api/like', getLikeStatus);
+app.post('/api/like', likePage);
 app.get('/api/config/comments', async (c) => {
 	try {
 		const settings = await loadCommentSettings(c.env);
@@ -247,6 +252,8 @@ app.get('/admin/stats/comments', getStats);
 app.get('/admin/stats/domains', getDomains);
 app.get('/admin/analytics/overview', getVisitOverview);
 app.get('/admin/analytics/pages', getVisitPages);
+app.get('/admin/likes/list', listLikes);
+app.get('/admin/likes/stats', getLikeStats);
 app.get('/admin/settings/email', getAdminEmail);
 app.put('/admin/settings/email', setAdminEmail);
 app.get('/admin/settings/email-notify', async (c) => {
