@@ -2,6 +2,7 @@
   <div class="login-page">
     <div class="login-card">
       <h1 class="login-title">CWD 评论后台</h1>
+      <p class="login-subtitle">简洁的自托管评论系统管理面板</p>
       <form class="login-form" @submit.prevent="handleSubmit">
         <div class="form-item">
           <label class="form-label">API 地址</label>
@@ -85,22 +86,35 @@ async function handleSubmit() {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100%;
+  min-height: 100vh;
+  padding: 24px 16px;
+  background: radial-gradient(circle at top, #eef2ff 0, #f9fafb 45%, #f3f4f6 100%);
 }
 
 .login-card {
   background-color: #ffffff;
-  padding: 32px 40px;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  width: 360px;
+  padding: 32px 32px 28px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
+  width: 100%;
+  max-width: 420px;
+  box-sizing: border-box;
 }
 
 .login-title {
-  margin: 0 0 24px;
-  font-size: 22px;
+  margin: 0;
+  font-size: 24px;
   text-align: center;
-  color: #333333;
+  color: #111827;
+  letter-spacing: 0.03em;
+}
+
+.login-subtitle {
+  margin: 8px 0 28px;
+  font-size: 13px;
+  text-align: center;
+  color: #6b7280;
 }
 
 .login-form {
@@ -117,40 +131,62 @@ async function handleSubmit() {
 
 .form-label {
   font-size: 14px;
-  color: #555555;
+  color: #4b5563;
 }
 
 .form-input {
-  padding: 8px 10px;
-  border-radius: 4px;
-  border: 1px solid #d0d7de;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
   font-size: 14px;
   outline: none;
+  background-color: #f9fafb;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, background-color 0.16s ease;
 }
 
 .form-input:focus {
-  border-color: #0969da;
-  box-shadow: 0 0 0 1px rgba(9, 105, 218, 0.2);
+  border-color: #2563eb;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.18);
 }
 
 .form-error {
   font-size: 13px;
-  color: #d1242f;
+  color: #dc2626;
+  margin-top: 4px;
 }
 
 .form-button {
   margin-top: 8px;
   padding: 10px 0;
-  border-radius: 4px;
+  border-radius: 999px;
   border: none;
-  background-color: #0969da;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
   color: #ffffff;
   font-size: 15px;
   cursor: pointer;
+  font-weight: 500;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease,
+    background 0.12s ease;
+  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.28);
+  width: 100%;
 }
 
 .form-button:disabled {
   opacity: 0.7;
   cursor: default;
+  box-shadow: none;
+  transform: none;
+}
+
+.form-button:not(:disabled):hover {
+  filter: brightness(1.03);
+  transform: translateY(-1px);
+  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.32);
+}
+
+.form-button:not(:disabled):active {
+  transform: translateY(0);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.26);
 }
 </style>
