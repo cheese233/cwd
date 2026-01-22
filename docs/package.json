@@ -5,7 +5,9 @@
   "license": "Apache-2.0",
   "scripts": {
     "dev": "vitepress dev",
-    "build": "vitepress build",
+    "build:docs": "vitepress build",
+    "build:widget": "cd widget && npm install && npm run build",
+    "build": "npm run build:widget && node copy-cwd-to-public.js && npm run build:docs",
     "preview": "vitepress preview"
   },
   "devDependencies": {
