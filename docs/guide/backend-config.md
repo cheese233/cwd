@@ -118,3 +118,45 @@ CWD 评论部署成功，当前版本...
 - 在 `Environment Variables` 中添加 `ADMIN_NAME`、`ADMIN_PASSWORD` 等变量
 - 在 `D1 Databases` 中绑定 `CWD_DB`（默认已配置好）
 - 在 `KV Namespaces` 中绑定 `CWD_AUTH_KV`（默认已配置好）
+
+
+## 参考模板
+
+一份完整的参考模板，如遇到部署问题可以对照参数进行检查。
+
+```jsonc
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "cwd-api",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-01-03",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"workers_dev": true,
+	"preview_urls": true,
+	"send_email": [
+		{
+			"name": "SEND_EMAIL"
+		}
+	],
+	"d1_databases": [
+		{
+			"binding": "CWD_DB",
+			"database_name": "CWD_DB",
+			"database_id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+			"remote": true
+		}
+	],
+	"kv_namespaces": [
+		{
+			"binding": "CWD_AUTH_KV",
+			"id": "xxxxxxxxxxxxxxxxxxxxxxx"
+		}
+	],
+	"vars": {
+		"ADMIN_NAME": "admin@example.com",
+		"ADMIN_PASSWORD": "123456"
+	}
+}
+```
