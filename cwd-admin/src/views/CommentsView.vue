@@ -139,9 +139,10 @@
         >
           ...
         </span>
-        <template v-for="page in visiblePages" :key="page">
+        <template v-for="page in visiblePages">
           <button
             v-if="page !== 1 && page !== pagination.total"
+            :key="page"
             class="pagination-button"
             :class="{ 'pagination-button-active': page === pagination.page }"
             :disabled="page === pagination.page"

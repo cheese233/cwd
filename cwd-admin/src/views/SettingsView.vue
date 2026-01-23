@@ -11,7 +11,12 @@
     <div v-if="loading" class="page-hint">加载中...</div>
     <div v-else>
       <div class="card">
-        <h3 class="card-title">评论显示配置</h3>
+        <div class="card-header" @click="toggleCard('comment')">
+          <div class="card-title">评论显示配置</div>
+          <div class="card-icon" :class="{ expanded: cardsExpanded.comment }">▼</div>
+        </div>
+        <transition name="collapse">
+          <div v-show="cardsExpanded.comment" class="card-body">
         <div class="form-item">
           <label class="form-label">管理员邮箱</label>
           <input v-model="commentAdminEmail" class="form-input" type="email" />
@@ -91,17 +96,24 @@
             <span v-else>保存</span>
           </button>
         </div>
+        </div>
+        </transition>
       </div>
 
       <div class="card">
-        <h3 class="card-title">功能开关</h3>
+        <div class="card-header" @click="toggleCard('feature')">
+          <div class="card-title">功能开关</div>
+          <div class="card-icon" :class="{ expanded: cardsExpanded.feature }">▼</div>
+        </div>
+        <transition name="collapse">
+          <div v-show="cardsExpanded.feature" class="card-body">
         <div class="form-item">
           <label class="form-label">开启文章点赞功能</label>
           <label class="switch">
             <input v-model="enableArticleLike" type="checkbox" />
             <span class="slider" />
           </label>
-          <div class="form-hint">开启后，评论区顶部会显示文章点赞（喜欢）按钮。</div>
+          <div class="form-hint">开启后，评论区顶部会显示的文章点赞（喜欢）按钮。</div>
         </div>
         <div class="form-item">
           <label class="form-label">开启评论点赞功能</label>
@@ -117,10 +129,17 @@
             <span v-else>保存</span>
           </button>
         </div>
+        </div>
+        </transition>
       </div>
 
       <div class="card">
-        <h3 class="card-title">通知邮箱设置</h3>
+        <div class="card-header" @click="toggleCard('email')">
+          <div class="card-title">通知邮箱设置</div>
+          <div class="card-icon" :class="{ expanded: cardsExpanded.email }">▼</div>
+        </div>
+        <transition name="collapse">
+          <div v-show="cardsExpanded.email" class="card-body">
         <div class="form-item">
           <label class="form-label">开启邮件通知</label>
           <label class="switch">
@@ -257,6 +276,8 @@
             <span v-else>保存配置</span>
           </button>
         </div>
+        </div>
+        </transition>
       </div>
     </div>
   </div>
@@ -375,6 +396,35 @@ const messageType = ref<"success" | "error">("success");
 const toastMessage = ref("");
 const toastType = ref<"success" | "error">("success");
 const toastVisible = ref(false);
+
+// 从本地存储加载卡片展开状态，默认只展开第一个卡片
+const STORAGE_KEY = "settings-cards-expanded";
+function loadCardsExpanded() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      return JSON.parse(saved);
+    }
+  } catch {
+    // 忽略错误
+  }
+  return { comment: true, feature: false, email: false };
+}
+
+const cardsExpanded = ref(loadCardsExpanded());
+
+function saveCardsExpanded() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(cardsExpanded.value));
+  } catch {
+    // 忽略错误
+  }
+}
+
+function toggleCard(card: keyof typeof cardsExpanded.value) {
+  cardsExpanded.value[card] = !cardsExpanded.value[card];
+  saveCardsExpanded();
+}
 
 const smtpProvider = ref("qq");
 const smtpHost = ref("smtp.qq.com");
@@ -625,13 +675,38 @@ onMounted(() => {
   background-color: #ffffff;
   border-radius: 6px;
   border: 1px solid #d0d7de;
-  padding: 16px 18px;
+  padding: 12px 18px;
   margin-bottom: 1em;
 }
 
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s;
+}
+
 .card-title {
-  margin: 0 0 12px;
+  margin: 0;
   font-size: 16px;
+  font-weight: 600;
+}
+
+.card-icon {
+  font-size: 12px;
+  color: #57606a;
+  transition: transform 0.2s ease;
+}
+
+.card-icon.expanded {
+  transform: rotate(180deg);
+}
+
+.card-body {
+  padding-top: 4px;
 }
 
 .card-subtitle {
@@ -835,5 +910,19 @@ onMounted(() => {
 }
 .form-hint a:hover {
   text-decoration: underline;
+}
+
+.collapse-enter-active,
+.collapse-leave-active {
+  transition: all 0.3s ease;
+  max-height: 2000px;
+  opacity: 1;
+}
+
+.collapse-enter-from,
+.collapse-leave-to {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
 }
 </style>
