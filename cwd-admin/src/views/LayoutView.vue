@@ -16,7 +16,7 @@
       </button>
       <div class="layout-title">CWD 评论系统</div>
       <div class="layout-actions-wrapper">
-        <div class="layout-domain-filter">
+        <div class="layout-domain-filter layout-domain-filter-header">
           <select v-model="domainFilter" class="layout-domain-select">
             <option value="">全部域名</option>
             <option v-for="item in domainOptions" :key="item" :value="item">
@@ -80,6 +80,14 @@
         class="layout-sider"
         :class="{ 'layout-sider-mobile-open': isMobileSiderOpen }"
       >
+        <div class="layout-sider-domain-filter">
+          <select v-model="domainFilter" class="layout-domain-select">
+            <option value="">全部域名</option>
+            <option v-for="item in domainOptions" :key="item" :value="item">
+              {{ item }}
+            </option>
+          </select>
+        </div>
         <ul class="menu">
           <li
             class="menu-item"
@@ -302,6 +310,10 @@ function handleLogoutFromActions() {
   font-size: 13px;
 }
 
+.layout-sider-domain-filter {
+  display: none;
+}
+
 .layout-actions {
   display: flex;
   gap: 8px;
@@ -455,6 +467,20 @@ function handleLogoutFromActions() {
 
   .layout-actions {
     display: none;
+  }
+
+  .layout-domain-filter-header {
+    display: none;
+  }
+
+  .layout-sider-domain-filter {
+    display: block;
+    padding: 12px 16px 0;
+  }
+
+  .layout-sider-domain-filter .layout-domain-select {
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .layout-actions-toggle {
