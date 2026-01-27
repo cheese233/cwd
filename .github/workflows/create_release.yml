@@ -1,0 +1,55 @@
+name: Check and Create Release
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  check-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+
+      - name: Get package.json version
+        id: get_version
+        run: echo "PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
+
+      - name: Get latest release version
+        id: get_release
+        run: |
+          curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest | jq -r '.tag_name' > latest_release.txt
+
+      - name: Compare versions
+        id: compare_versions
+        run: |
+          LATEST_TAG="$(cat latest_release.txt 2>/dev/null || echo "")"
+          if [ "$LATEST_TAG" = "null" ]; then
+            LATEST_TAG=""
+          fi
+          NORMALIZED_LATEST="${LATEST_TAG#v}"
+          NORMALIZED_LATEST="${NORMALIZED_LATEST#V}"
+          if [ "$NORMALIZED_LATEST" != "$PACKAGE_VERSION" ]; then
+            echo "Version mismatch"
+            echo "create_release=true" >> $GITHUB_ENV
+          else
+            echo "Version matches"
+            echo "create_release=false" >> $GITHUB_ENV
+          fi
+
+      - name: Create new release
+        if: env.create_release == 'true'
+        run: |
+          TAG_NAME="v$PACKAGE_VERSION"
+          gh release create "$TAG_NAME" \
+            --generate-notes \
+            -t "$TAG_NAME"
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}

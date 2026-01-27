@@ -8,7 +8,7 @@ import {
 	saveEmailNotificationSettings
 } from './utils/email';
 import { loadFeatureSettings } from './utils/featureSettings';
-import packageJson from '../package.json';
+import packageJson from '../../package.json';
 
 import { getComments } from './api/public/getComments';
 import { postComment } from './api/public/postComment';
