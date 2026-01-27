@@ -42,7 +42,27 @@
     </div>
 
     <div class="card">
-      <h3 class="card-title">最近 30 天访问趋势</h3>
+      <div class="card-title-row">
+        <h3 class="card-title">访问趋势</h3>
+        <div class="visit-tabs">
+          <button
+            class="visit-tab"
+            :class="{ 'visit-tab-active': chartRange === '7' }"
+            type="button"
+            @click="changeChartRange('7')"
+          >
+            最近 7 天
+          </button>
+          <button
+            class="visit-tab"
+            :class="{ 'visit-tab-active': chartRange === '30' }"
+            type="button"
+            @click="changeChartRange('30')"
+          >
+            最近 30 天
+          </button>
+        </div>
+      </div>
       <div v-if="loading" class="page-hint">加载中...</div>
       <div v-else-if="error" class="page-error">{{ error }}</div>
       <div class="chart-wrapper">
@@ -187,6 +207,7 @@ const injectedDomainFilter = inject<Ref<string> | null>("domainFilter", null);
 const domainFilter = injectedDomainFilter ?? ref("");
 const last30Days = ref<{ date: string; total: number }[]>([]);
 const likeStatsItems = ref<LikeStatsItem[]>([]);
+const chartRange = ref<"7" | "30">("30");
 
 const toastMessage = ref("");
 const toastType = ref<"success" | "error">("success");
@@ -375,8 +396,11 @@ function renderChart() {
   if (!chartInstance) {
     chartInstance = echarts.init(el);
   }
-  const dates = last30Days.value.map((item) => item.date.slice(5));
-  const values = last30Days.value.map((item) => item.total);
+  const source = last30Days.value;
+  const seriesData =
+    chartRange.value === "7" ? source.slice(-7) : source;
+  const dates = seriesData.map((item) => item.date.slice(5));
+  const values = seriesData.map((item) => item.total);
   const option: echarts.EChartsOption = {
     tooltip: {
       trigger: "axis",
@@ -420,6 +444,14 @@ function renderChart() {
     ],
   };
   chartInstance.setOption(option);
+}
+
+function changeChartRange(range: "7" | "30") {
+  if (chartRange.value === range) {
+    return;
+  }
+  chartRange.value = range;
+  renderChart();
 }
 
 function handleResize() {

@@ -42,7 +42,27 @@
     </div>
 
     <div class="card">
-      <h3 class="card-title">最近 30 天评论数趋势</h3>
+      <div class="card-title-row">
+        <h3 class="card-title">评论数趋势</h3>
+        <div class="chart-tabs">
+          <button
+            class="chart-tab"
+            :class="{ 'chart-tab-active': chartRange === '7' }"
+            type="button"
+            @click="changeChartRange('7')"
+          >
+            最近 7 天
+          </button>
+          <button
+            class="chart-tab"
+            :class="{ 'chart-tab-active': chartRange === '30' }"
+            type="button"
+            @click="changeChartRange('30')"
+          >
+            最近 30 天
+          </button>
+        </div>
+      </div>
       <div v-if="statsLoading" class="page-hint">加载中...</div>
       <div v-else-if="statsError" class="page-error">{{ statsError }}</div>
       <div class="chart-wrapper">
@@ -105,6 +125,7 @@ const statsSummary = ref({
 });
 const domainStats = ref<DomainStat[]>([]);
 const last7Days = ref<{ date: string; total: number }[]>([]);
+const chartRange = ref<"7" | "30">("30");
 
 const injectedDomainFilter = inject<Ref<string> | null>("domainFilter", null);
 const domainFilter = injectedDomainFilter ?? ref("");
@@ -159,8 +180,11 @@ function renderChart() {
   if (!chartInstance) {
     chartInstance = echarts.init(el);
   }
-  const dates = last7Days.value.map((item) => item.date.slice(5));
-  const values = last7Days.value.map((item) => item.total);
+  const source = last7Days.value;
+  const seriesData =
+    chartRange.value === "7" ? source.slice(-7) : source;
+  const dates = seriesData.map((item) => item.date.slice(5));
+  const values = seriesData.map((item) => item.total);
   const option: echarts.EChartsOption = {
     tooltip: {
       trigger: "axis",
@@ -204,6 +228,14 @@ function renderChart() {
     ],
   };
   chartInstance.setOption(option);
+}
+
+function changeChartRange(range: "7" | "30") {
+  if (chartRange.value === range) {
+    return;
+  }
+  chartRange.value = range;
+  renderChart();
 }
 
 function handleResize() {
@@ -277,6 +309,14 @@ onBeforeUnmount(() => {
   font-size: 16px;
 }
 
+.card-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
 .page-hint {
   font-size: 14px;
   color: #57606a;
@@ -285,6 +325,31 @@ onBeforeUnmount(() => {
 .page-error {
   font-size: 14px;
   color: #d1242f;
+}
+
+.chart-tabs {
+  display: inline-flex;
+  border-radius: 999px;
+  border: 1px solid #d0d7de;
+  overflow: hidden;
+}
+
+.chart-tab {
+  padding: 4px 10px;
+  font-size: 12px;
+  border: none;
+  background-color: #ffffff;
+  color: #57606a;
+  cursor: pointer;
+}
+
+.chart-tab + .chart-tab {
+  border-left: 1px solid #d0d7de;
+}
+
+.chart-tab-active {
+  background-color: #0969da;
+  color: #ffffff;
 }
 
 .stats-grid {
