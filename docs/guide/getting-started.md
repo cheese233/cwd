@@ -33,7 +33,7 @@
 - 🎨 **外观设计**：优雅简洁的 UI 设计，支持自定义主题/黑夜模式等
 
 **评论端**
-![](https://github.com/user-attachments/assets/6ac091d8-e349-4d40-9d68-485817f63236)
+![](https://github.com/user-attachments/assets/34096ce5-512d-4ddb-b409-edef6a2674ed)
 
 **后台管理**
 ![](https://github.com/user-attachments/assets/59ef1a42-75f7-4efa-8a0c-beae71322484)
