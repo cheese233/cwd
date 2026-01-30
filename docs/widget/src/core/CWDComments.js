@@ -301,7 +301,7 @@ export class CWDComments {
 			existingSuccess.remove();
 		}
 
-		// 创建头部统计
+		// 创建头部点赞区域
 		let header = this.mountPoint.querySelector('.cwd-comments-header');
 		if (!header) {
 			header = document.createElement('div');
@@ -318,15 +318,8 @@ export class CWDComments {
 						<div>已有 <span class="cwd-like-count">0</span>人喜欢~ </div>
           </button>
         </div>
-        <h3 class="cwd-comments-count">
-          共 <span class="cwd-comments-count-number">0</span> 条评论
-        </h3>
       `;
 			this.mountPoint.appendChild(header);
-		}
-		const countEl = header.querySelector('.cwd-comments-count-number');
-		if (countEl) {
-			countEl.textContent = state.pagination.totalCount;
 		}
 
 		this._initLikeButton(header);
@@ -348,6 +341,25 @@ export class CWDComments {
 				onVerifyAdmin: (key) => this.api.verifyAdminKey(key),
 			});
 			this.commentForm.render();
+		}
+
+		// 创建评论数统计（放在主评论表单下方、评论列表上方）
+		let countHeading = this.mountPoint.querySelector('.cwd-comments-count');
+		if (!countHeading) {
+			countHeading = document.createElement('h3');
+			countHeading.className = 'cwd-comments-count';
+			countHeading.innerHTML = `
+          共 <span class="cwd-comments-count-number">0</span> 条评论
+        `;
+			if (this.formContainer && this.formContainer.parentNode === this.mountPoint) {
+				this.mountPoint.insertBefore(countHeading, this.formContainer.nextSibling);
+			} else {
+				this.mountPoint.appendChild(countHeading);
+			}
+		}
+		const countEl = this.mountPoint.querySelector('.cwd-comments-count-number');
+		if (countEl) {
+			countEl.textContent = state.pagination.totalCount;
 		}
 
 		// 创建评论列表
@@ -460,9 +472,9 @@ export class CWDComments {
 			existingSuccess.remove();
 		}
 
-		// 更新头部统计
+		// 更新点赞和评论数统计
 		const header = this.mountPoint?.querySelector('.cwd-comments-header');
-		const countEl = header?.querySelector('.cwd-comments-count-number');
+		const countEl = this.mountPoint?.querySelector('.cwd-comments-count-number');
 		if (countEl) {
 			countEl.textContent = state.pagination.totalCount;
 		}
