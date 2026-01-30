@@ -1,6 +1,7 @@
 import DefaultTheme from 'vitepress/theme';
 import { h } from 'vue';
 import FooterDoc from '../components/footerDoc.vue';
+import GitHubStar from '../components/githubStar.vue';
 import './custom.css';
 
 export default {
@@ -11,6 +12,7 @@ export default {
 		return h(Layout, null, {
 			'doc-footer-before': () => h(FooterDoc),
 			'home-features-after': () => h('div', { class: 'extra-class' }, [h(FooterDoc)]),
+			'nav-bar-content-after': () => h(GitHubStar),
 		});
 	},
 };
