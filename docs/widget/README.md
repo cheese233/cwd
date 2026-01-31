@@ -6,7 +6,7 @@
 
 [![GitHub release](https://img.shields.io/github/v/release/anghunk/cwd?display_name=tag&style=flat-square)](https://github.com/anghunk/cwd/releases)
 [![GitHub stars](https://img.shields.io/github/stars/anghunk/cwd?style=flat-square)](https://github.com/anghunk/cwd)
-[![License](https://img.shields.io/github/license/anghunk/cwd?style=flat-square)](./LICENSE)
+[![License](https://img.shields.io/github/license/anghunk/cwd?style=flat-square)](https://github.com/anghunk/cwd/blob/main/LICENSE)
 [![Docs](https://img.shields.io/badge/Docs-cwd.js.org-brightgreen?style=flat-square)](https://cwd.js.org)
 [![Discord](https://img.shields.io/badge/discord-join-5865F2?logo=discord&logoColor=white&style=flat-square)](https://discord.gg/n2pErsD7Kg)
 
