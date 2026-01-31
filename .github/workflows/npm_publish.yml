@@ -1,4 +1,4 @@
-name: Publish widget to npm
+name: Publish npm
 
 on:
   push:
