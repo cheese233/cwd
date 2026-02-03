@@ -369,8 +369,9 @@ function closeVersionModal() {
 .modal {
   background-color: var(--bg-card);
   border-radius: 10px;
-  width: 420px;
-  max-width: 100%;
+  max-width: 420px;
+  width: 100%;
+  margin: 10px;
   padding: 20px 20px 18px;
   box-shadow: var(--shadow-card);
   display: flex;
