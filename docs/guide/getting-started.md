@@ -1,8 +1,6 @@
 # Cloudflare Workers Discuss
 
-**CWD 评论系统**
-
-是基于 Cloudflare Workers 与全球边缘网络的免服务器、极速安全、即插即用评论系统。
+**CWD 评论系统** 是基于 Cloudflare Workers 与全球边缘网络的免服务器、极速安全、即插即用评论系统。
 
 数据存储在 Cloudflare D1 数据库中，通过 Worker 与数据库交互。根据对 Cloudflare 免费计划的分析，CWD 评论系统的部署成本为零，不需要任何成本。
 
@@ -14,7 +12,7 @@
 | 行写入 | 10 万        | ~2 次/次访问 | 5 万次页面访问   |
 | 存储   | 5GB          | 1-2KB/评论   | 250 万 + 评论    |
 
-**足以满足以下场景：**  对于个人博客或中小型站点来说，免费计划完全够用。
+**足以满足以下场景：** 对于个人博客或中小型站点来说，免费计划完全够用。
 
 - 日访问量：30,000 - 50,000 次页面加载
 - 日评论量：100 - 200 条新评论
@@ -36,6 +34,7 @@
 ![](https://github.com/user-attachments/assets/34096ce5-512d-4ddb-b409-edef6a2674ed)
 
 **后台管理**
+![](https://github.com/user-attachments/assets/7592e339-3a4f-4dd2-a71c-ff6d97621fd9)
 ![](https://github.com/user-attachments/assets/59ef1a42-75f7-4efa-8a0c-beae71322484)
 ![](https://github.com/user-attachments/assets/2bffdfaf-4af4-4bd8-929f-a178bc4acb78)
 ![](https://github.com/user-attachments/assets/37cff92b-d6c7-4d1e-a9dd-856bac6ec8d3)
