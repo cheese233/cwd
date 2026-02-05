@@ -179,6 +179,7 @@ import packageJson from "../../../package.json";
 
 const DOMAIN_STORAGE_KEY = "cwd_admin_domain_filter";
 const API_BASE_URL_KEY = "cwd_admin_api_base_url";
+const SITE_TITLE_KEY = "cwd_admin_site_title";
 
 const router = useRouter();
 const route = useRoute();
@@ -191,7 +192,7 @@ const apiVersion = ref("");
 const checkedApiBaseUrl = ref("");
 const apiVersionError = ref("");
 const versionModalVisible = ref(false);
-const layoutTitle = ref("CWD 评论系统");
+const layoutTitle = ref(localStorage.getItem(SITE_TITLE_KEY) || "CWD 评论系统");
 
 const themeTitle = computed(() => {
   if (theme.value === "light") return "明亮模式";
@@ -255,16 +256,29 @@ async function loadVersion() {
   }
 }
 
+function updateTitle(newTitle: string) {
+  layoutTitle.value = newTitle;
+  localStorage.setItem(SITE_TITLE_KEY, newTitle);
+  const pageTitle = route.meta.title;
+  if (pageTitle) {
+    document.title = `${pageTitle} - ${newTitle}`;
+  } else {
+    document.title = newTitle;
+  }
+}
+
 async function loadDisplaySettings() {
   try {
     const res = await fetchAdminDisplaySettings();
-    layoutTitle.value = res.layoutTitle || "CWD 评论系统";
+    const title = res.layoutTitle || "CWD 评论系统";
+    updateTitle(title);
   } catch {
-    layoutTitle.value = "CWD 评论系统";
+    // 忽略错误，保持当前值或默认值
   }
 }
 
 provide("domainFilter", domainFilter);
+provide("updateSiteTitle", updateTitle);
 
 onMounted(() => {
   loadDomains();

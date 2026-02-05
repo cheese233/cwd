@@ -71,7 +71,8 @@ export const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-	const defaultTitle = 'CWD 评论系统';
+	const storedTitle = localStorage.getItem('cwd_admin_site_title');
+	const defaultTitle = storedTitle || 'CWD 评论系统';
 	if (to.meta && to.meta.title) {
 		document.title = (to.meta.title + ' - ' + defaultTitle) as string;
 	} else {

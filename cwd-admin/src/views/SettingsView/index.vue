@@ -510,7 +510,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, type Ref } from "vue";
+import { onMounted, ref, type Ref, inject } from "vue";
 import {
   fetchCommentSettings,
   saveCommentSettings,
@@ -1038,6 +1038,8 @@ async function saveFeature() {
   }
 }
 
+const updateSiteTitle = inject<(title: string) => void>("updateSiteTitle");
+
 async function saveDisplay() {
   savingDisplay.value = true;
   message.value = "";
@@ -1045,6 +1047,10 @@ async function saveDisplay() {
     const res = await saveAdminDisplaySettings({
       layoutTitle: adminLayoutTitle.value,
     });
+
+    if (updateSiteTitle) {
+      updateSiteTitle(adminLayoutTitle.value);
+    }
 
     showToast(res.message || "保存成功", "success");
   } catch (e: any) {
