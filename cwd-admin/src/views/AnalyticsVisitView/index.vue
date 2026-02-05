@@ -132,7 +132,9 @@
     </div>
 
     <div class="card">
-      <h3 class="card-title">点赞页面排行榜</h3>
+      <div class="card-title-row">
+        <h3 class="card-title">点赞页面排行榜</h3>
+      </div>
       <div v-if="loading" class="page-hint">加载中...</div>
       <div v-else-if="error" class="page-error">{{ error }}</div>
       <div v-else-if="likeStatsItems.length === 0" class="page-hint">暂无点赞数据</div>
