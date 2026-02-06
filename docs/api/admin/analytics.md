@@ -14,7 +14,7 @@ Authorization: Bearer <token>
 GET /admin/analytics/overview
 ```
 
-用于管理后台「访问统计」页面展示整体访问数据，包括总 PV、总页面数以及最近 30 天的访问趋势。
+用于管理后台「访问统计」页面展示整体访问数据，包括总 PV、总页面数、今日/昨日/本周/上周/本月/上月访问量以及最近 30 天的访问趋势。
 
 - 方法：`GET`
 - 路径：`/admin/analytics/overview`
@@ -34,6 +34,12 @@ GET /admin/analytics/overview
 {
   "totalPv": 1000,
   "totalPages": 50,
+  "todayPv": 100,
+  "yesterdayPv": 80,
+  "weekPv": 500,
+  "lastWeekPv": 400,
+  "monthPv": 800,
+  "lastMonthPv": 650,
   "last30Days": [
     {
       "date": "2026-01-15",
@@ -53,9 +59,22 @@ GET /admin/analytics/overview
 | -------------- | ------------------- | ------------------------------------- |
 | `totalPv`      | number              | 总访问量（PV）                        |
 | `totalPages`   | number              | 总页面数                              |
+| `todayPv`      | number              | 今日访问量                            |
+| `yesterdayPv`  | number              | 昨日访问量                            |
+| `weekPv`       | number              | 本周访问量                            |
+| `lastWeekPv`   | number              | 上周访问量（用于同比对比）              |
+| `monthPv`      | number              | 本月访问量                            |
+| `lastMonthPv`  | number              | 上月访问量（用于同比对比）              |
 | `last30Days`   | Array\<DailyStat\>  | 最近 30 天的每日访问数（按自然日聚合） |
 | `last30Days[].date`   | string (YYYY-MM-DD) | 日期，UTC 时间格式化后的自然日        |
 | `last30Days[].total`  | number              | 当日访问总数                          |
+
+**说明**：
+
+- `weekPv`：本周（从周一到当天）的总访问量
+- `lastWeekPv`：上周（上周一到上周日）的总访问量，用于与本周进行同比对比
+- `monthPv`：本月（从本月1号到当天）的总访问量
+- `lastMonthPv`：上月（上月1号到上月最后一天）的总访问量，用于与本月进行进行同比对比
 
 **错误响应**
 

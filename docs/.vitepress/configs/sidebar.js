@@ -28,7 +28,16 @@ export const apiSidebar = [
 		text: 'API 文档',
 		items: [
 			{ text: '概览', link: '/api/overview' },
-			{ text: '公开 API', link: '/api/public' },
+			{
+				text: '公开 API',
+				items: [
+					{ text: '评论接口', link: '/api/public/comments' },
+					{ text: '点赞接口', link: '/api/public/like' },
+					{ text: '配置接口', link: '/api/public/config' },
+					{ text: '身份验证', link: '/api/public/auth' },
+					{ text: '访问统计', link: '/api/public/analytics' },
+				],
+			},
 			{
 				text: '管理员 API',
 				items: [
@@ -41,7 +50,7 @@ export const apiSidebar = [
 					{ text: 'Telegram 通知', link: '/api/admin/telegram-notify' },
 					{ text: '统计数据', link: '/api/admin/stats' },
 					{ text: '访问统计', link: '/api/admin/analytics' },
-					{ text: '点赞开关', link: '/api/admin/feature-settings' },
+					{ text: '功能设置', link: '/api/admin/feature-settings' },
 				],
 			},
 		],

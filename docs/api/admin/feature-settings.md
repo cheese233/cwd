@@ -1,6 +1,6 @@
 # 功能设置相关
 
-管理点赞功能开关的接口。
+管理各项功能开关的接口，包括点赞功能、图片灯箱预览、评论占位符、域名可见性等。
 
 ## 获取功能设置
 
@@ -21,16 +21,22 @@ GET /admin/settings/feature
 ```json
 {
   "enableCommentLike": true,
-  "enableArticleLike": true
+  "enableArticleLike": true,
+  "enableImageLightbox": true,
+  "commentPlaceholder": "发表你的看法...",
+  "visibleDomains": ["example.com", "blog.example.com"]
 }
 ```
 
 字段说明：
 
-| 字段名             | 类型    | 说明                   |
-| ------------------ | ------- | ---------------------- |
-| `enableCommentLike` | boolean | 是否启用评论点赞功能 |
-| `enableArticleLike` | boolean | 是否启用文章点赞功能 |
+| 字段名               | 类型   | 说明                   |
+| -------------------- | ------ | ---------------------- |
+| `enableCommentLike`   | boolean | 是否启用评论点赞功能 |
+| `enableArticleLike`   | boolean | 是否启用文章点赞功能 |
+| `enableImageLightbox` | boolean | 是否启用评论图片灯箱预览功能 |
+| `commentPlaceholder`   | string \| null | 评论输入框的占位符文本 |
+| `visibleDomains`      | string[] | 允许显示评论组件的域名列表 |
 
 ## 更新功能设置
 
@@ -56,16 +62,28 @@ PUT /admin/settings/feature
 ```json
 {
   "enableCommentLike": true,
-  "enableArticleLike": true
+  "enableArticleLike": true,
+  "enableImageLightbox": true,
+  "commentPlaceholder": "发表你的看法...",
+  "visibleDomains": ["example.com", "blog.example.com"]
 }
 ```
 
 字段说明：
 
-| 字段名             | 类型    | 必填 | 说明                   |
-| ------------------ | ------- | ---- | ---------------------- |
-| `enableCommentLike` | boolean | 否   | 是否启用评论点赞功能 |
-| `enableArticleLike` | boolean | 否   | 是否启用文章点赞功能 |
+| 字段名               | 类型    | 必填 | 说明                   |
+| -------------------- | ------- | ---- | ---------------------- |
+| `enableCommentLike`   | boolean | 否   | 是否启用评论点赞功能 |
+| `enableArticleLike`   | boolean | 否   | 是否启用文章点赞功能 |
+| `enableImageLightbox` | boolean | 否   | 是否启用评论图片灯箱预览功能 |
+| `commentPlaceholder`   | string | 否   | 评论输入框的占位符文本 |
+| `visibleDomains`      | string[] | 否   | 允许显示评论组件的域名列表 |
+
+**说明**：
+
+- `enableImageLightbox`：启用后，评论内容中的图片可以点击放大预览
+- `commentPlaceholder`：自定义评论输入框的占位符文本，留空则使用默认文本
+- `visibleDomains`：设置后，只有在此列表中的域名可以正常显示评论组件，其他域名将被隐藏。留空或为 `null` 表示不限制域名。
 
 **成功响应**
 
