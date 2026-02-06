@@ -114,9 +114,12 @@
   background: var(--cwd-bg-secondary, #f6f8fa);
 }
 
-.cell-content-text img {
+.cell-content-text img,
+.cell-content-text video,
+.cell-content-text iframe {
   max-width: 100%;
   height: auto;
+  max-height: 200px;
 }
 
 /* 兼容其他框架导入的样式 */

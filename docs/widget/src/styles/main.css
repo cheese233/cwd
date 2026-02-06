@@ -545,9 +545,12 @@
   background: var(--cwd-bg-secondary, #f6f8fa);
 }
 
-.cwd-comment-content img {
+.cwd-comment-content img,
+.cwd-comment-content video,
+.cwd-comment-content iframe {
   max-width: 100%;
   height: auto;
+  max-height: 400px;
 }
 
 .cwd-like {
@@ -1029,4 +1032,93 @@
   display: inline-block;
   vertical-align: bottom;
   max-width: 40px;
+}
+
+/* ========== Image Preview Modal ========== */
+.cwd-image-preview-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2147483647;
+  /* Max z-index to be on top of everything */
+  animation: cwd-fade-in 0.2s ease-out;
+  cursor: zoom-out;
+}
+
+.cwd-image-preview-content {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cwd-image-preview-img {
+  max-width: 100%;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: 4px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  cursor: default;
+  animation: cwd-zoom-in 0.3s cubic-bezier(0.2, 0, 0.2, 1);
+}
+
+.cwd-image-preview-close {
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.cwd-image-preview-close:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+@keyframes cwd-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes cwd-zoom-in {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .cwd-image-preview-close {
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.5);
+  }
 }

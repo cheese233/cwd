@@ -7,6 +7,7 @@ import { createApiClient } from './api.js';
 import { createCommentStore } from './store.js';
 import { CommentForm } from '@/components/CommentForm.js';
 import { CommentList } from '@/components/CommentList.js';
+import { ImagePreview } from '@/components/ImagePreview.js';
 import styles from '@/styles/main.css?inline';
 
 /**
@@ -42,6 +43,7 @@ export class CWDComments {
 		this.mountPoint = null;
 		this.commentForm = null;
 		this.commentList = null;
+		this.imagePreview = null;
 		this.formContainer = null;
 		this.customStyleElement = null;
 		this.store = null;
@@ -101,6 +103,7 @@ export class CWDComments {
 				allowedDomains: Array.isArray(data.allowedDomains) ? data.allowedDomains : [],
 				enableCommentLike: typeof data.enableCommentLike === 'boolean' ? data.enableCommentLike : true,
 				enableArticleLike: typeof data.enableArticleLike === 'boolean' ? data.enableArticleLike : true,
+				enableImageLightbox: typeof data.enableImageLightbox === 'boolean' ? data.enableImageLightbox : false,
 				commentPlaceholder:
 					typeof data.commentPlaceholder === 'string' ? data.commentPlaceholder : undefined,
 			};
@@ -170,6 +173,15 @@ export class CWDComments {
 			this.config.requireReview = !!serverConfig.requireReview;
 			this.config.enableCommentLike = serverConfig.enableCommentLike;
 			this.config.enableArticleLike = serverConfig.enableArticleLike;
+			this.config.enableImageLightbox = serverConfig.enableImageLightbox;
+
+			if (this.config.enableImageLightbox === true) {
+				if (this.mountPoint && !this.imagePreview) {
+					this.imagePreview = new ImagePreview(this.mountPoint);
+					this.mountPoint.addEventListener('click', (e) => this._handleImageClick(e));
+				}
+			}
+
 			this.config.commentPlaceholder =
 				typeof serverConfig.commentPlaceholder === 'string'
 					? serverConfig.commentPlaceholder
@@ -232,6 +244,11 @@ export class CWDComments {
 		if (this.commentList) {
 			this.commentList.destroy();
 			this.commentList = null;
+		}
+
+		if (this.imagePreview) {
+			// imagePreview 没有 destroy 方法，但它挂载在 shadowRoot 下，会被自动移除
+			this.imagePreview = null;
 		}
 
 		// 取消订阅
@@ -725,6 +742,22 @@ export class CWDComments {
 				this.likeState.loading = false;
 				this._updateLikeButton();
 			});
+	}
+
+	/**
+	 * 处理图片点击
+	 * @private
+	 */
+	_handleImageClick(e) {
+		const target = e.target;
+		// 检查点击的是否是评论内容中的图片
+		if (target.tagName === 'IMG' && target.closest('.cwd-comment-content')) {
+			e.preventDefault();
+			e.stopPropagation();
+			if (this.imagePreview) {
+				this.imagePreview.open(target.src);
+			}
+		}
 	}
 
 	/**

@@ -207,39 +207,54 @@
             </div>
           </template>
           <template v-else-if="activeTab === 'feature'">
-            <div class="card">
+            <div class="card feature">
               <div class="card-header">
                 <div class="card-title">功能开关</div>
               </div>
               <div class="card-body">
-                <div class="form-item">
-                  <label class="form-label">开启文章点赞功能</label>
-                  <label class="switch">
-                    <input v-model="enableArticleLike" type="checkbox" />
-                    <span class="slider" />
-                  </label>
+                <div class="form-item bg">
+                  <div class="form-item-flex">
+                    <label class="form-label">开启文章点赞功能</label>
+                    <label class="switch">
+                      <input v-model="enableArticleLike" type="checkbox" />
+                      <span class="slider" />
+                    </label>
+                  </div>
                   <div class="form-hint">
                     开启后，评论区顶部会显示的文章点赞（喜欢）按钮。
                   </div>
                 </div>
-                <div class="form-item">
-                  <label class="form-label">开启评论点赞功能</label>
-                  <label class="switch">
-                    <input v-model="enableCommentLike" type="checkbox" />
-                    <span class="slider" />
-                  </label>
+                <div class="form-item bg">
+                  <div class="form-item-flex">
+                    <label class="form-label">开启评论点赞功能</label>
+                    <label class="switch">
+                      <input v-model="enableCommentLike" type="checkbox" />
+                      <span class="slider" />
+                    </label>
+                  </div>
                   <div class="form-hint">
                     开启后，评论列表中的每条评论都会显示点赞按钮。
                   </div>
                 </div>
-      
+
+                <div class="form-item bg">
+                  <div class="form-item-flex">
+                    <label class="form-label">评论列表图片灯箱模式</label>
+                    <label class="switch">
+                      <input v-model="enableImageLightbox" type="checkbox" />
+                      <span class="slider" />
+                    </label>
+                  </div>
+                  <div class="form-hint">开启后，点击评论中的图片时会全屏放大预览。</div>
+                </div>
+
                 <div class="form-item">
                   <label class="form-label">评论框提示文案 (Placeholder)</label>
                   <textarea
                     v-model="commentPlaceholder"
                     class="form-input"
                     rows="3"
-                    style="height:90px;resize:none;"
+                    style="height: 90px; resize: none"
                     placeholder="默认：写下你的评论，可换行书写提示"
                   ></textarea>
                   <div class="form-hint">
@@ -382,7 +397,8 @@
                   </div>
                   <div v-else-if="smtpProvider === '163'" class="form-hint">
                     注意：163 邮箱必须使用授权码，而非登录密码。<br />
-                    请登录 163 邮箱网页版，在【设置 - POP3/SMTP/IMAP】中开启服务并生成授权码。
+                    请登录 163 邮箱网页版，在【设置 -
+                    POP3/SMTP/IMAP】中开启服务并生成授权码。
                   </div>
                 </div>
 
@@ -640,6 +656,7 @@ const adminKeySet = ref(false);
 const requireReview = ref(false);
 const enableArticleLike = ref(true);
 const enableCommentLike = ref(true);
+const enableImageLightbox = ref(true);
 const commentPlaceholder = ref("");
 const telegramBotToken = ref("");
 const telegramChatId = ref("");
@@ -932,6 +949,7 @@ async function load() {
     emailGlobalEnabled.value = !!emailNotifyRes.globalEnabled;
     enableArticleLike.value = featureRes.enableArticleLike;
     enableCommentLike.value = featureRes.enableCommentLike;
+    enableImageLightbox.value = featureRes.enableImageLightbox;
     commentPlaceholder.value = featureRes.commentPlaceholder || "";
 
     telegramBotToken.value = telegramRes.botToken || "";
@@ -1080,6 +1098,7 @@ async function saveFeature() {
       saveFeatureSettings({
         enableArticleLike: enableArticleLike.value,
         enableCommentLike: enableCommentLike.value,
+        enableImageLightbox: enableImageLightbox.value,
         commentPlaceholder: commentPlaceholder.value,
       }),
     ]);

@@ -25,6 +25,10 @@ export const updateFeatureSettings = async (c: Context<{ Bindings: Bindings }>) 
 			typeof body.enableArticleLike === 'boolean'
 				? body.enableArticleLike
 				: undefined;
+		const enableImageLightbox =
+			typeof body.enableImageLightbox === 'boolean'
+				? body.enableImageLightbox
+				: undefined;
 		const rawCommentPlaceholder =
 			typeof body.commentPlaceholder === 'string' ? body.commentPlaceholder : undefined;
 		const commentPlaceholder =
@@ -37,6 +41,7 @@ export const updateFeatureSettings = async (c: Context<{ Bindings: Bindings }>) 
 		await saveFeatureSettings(c.env, {
 			enableCommentLike,
 			enableArticleLike,
+			enableImageLightbox,
 			commentPlaceholder,
 			visibleDomains
 		});

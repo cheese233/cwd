@@ -2,12 +2,14 @@ import { Bindings } from '../bindings';
 
 export const FEATURE_COMMENT_LIKE_KEY = 'comment_feature_comment_like';
 export const FEATURE_ARTICLE_LIKE_KEY = 'comment_feature_article_like';
+export const FEATURE_IMAGE_LIGHTBOX_KEY = 'comment_feature_image_lightbox';
 export const FEATURE_COMMENT_PLACEHOLDER_KEY = 'comment_feature_placeholder';
 export const FEATURE_VISIBLE_DOMAINS_KEY = 'admin_visible_domains';
 
 export type FeatureSettings = {
 	enableCommentLike: boolean;
 	enableArticleLike: boolean;
+	enableImageLightbox: boolean;
 	commentPlaceholder?: string;
 	visibleDomains?: string[];
 };
@@ -20,11 +22,12 @@ export async function loadFeatureSettings(env: Bindings): Promise<FeatureSetting
 	const keys = [
 		FEATURE_COMMENT_LIKE_KEY,
 		FEATURE_ARTICLE_LIKE_KEY,
+		FEATURE_IMAGE_LIGHTBOX_KEY,
 		FEATURE_COMMENT_PLACEHOLDER_KEY,
 		FEATURE_VISIBLE_DOMAINS_KEY
 	];
 	const { results } = await env.CWD_DB.prepare(
-		'SELECT key, value FROM Settings WHERE key IN (?, ?, ?, ?)'
+		'SELECT key, value FROM Settings WHERE key IN (?, ?, ?, ?, ?)'
 	)
 		.bind(...keys)
 		.all<{ key: string; value: string }>();
@@ -56,6 +59,9 @@ export async function loadFeatureSettings(env: Bindings): Promise<FeatureSetting
 	const enableArticleLikeRaw = map.get(FEATURE_ARTICLE_LIKE_KEY);
 	const enableArticleLike = enableArticleLikeRaw !== '0'; // Default to true if missing or '1'
 
+	const enableImageLightboxRaw = map.get(FEATURE_IMAGE_LIGHTBOX_KEY);
+	const enableImageLightbox = enableImageLightboxRaw === '1';
+
 	const commentPlaceholder = map.get(FEATURE_COMMENT_PLACEHOLDER_KEY);
 
 	let visibleDomains: string[] | undefined;
@@ -71,6 +77,7 @@ export async function loadFeatureSettings(env: Bindings): Promise<FeatureSetting
 	return {
 		enableCommentLike,
 		enableArticleLike,
+		enableImageLightbox,
 		commentPlaceholder,
 		visibleDomains
 	};
@@ -99,6 +106,15 @@ export async function saveFeatureSettings(
 			value:
 				typeof settings.enableArticleLike === 'boolean'
 					? settings.enableArticleLike
+						? '1'
+						: '0'
+					: undefined
+		},
+		{
+			key: FEATURE_IMAGE_LIGHTBOX_KEY,
+			value:
+				typeof settings.enableImageLightbox === 'boolean'
+					? settings.enableImageLightbox
 						? '1'
 						: '0'
 					: undefined
