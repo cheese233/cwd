@@ -61,7 +61,7 @@
         </button>
       </div>
       <transition name="tab-fade" mode="out-in">
-        <div :key="activeTab">
+        <div :key="activeTab" class="settings-content">
           <template v-if="activeTab === 'comment'">
             <div class="card">
               <div class="card-header">
@@ -113,84 +113,19 @@
                   <label class="form-label">
                     允许调用的域名（设置后仅匹配域名可调用前台评论组件，留空则不限制。使用空格或者逗号进行分割。）
                   </label>
-                  <div class="tag-input">
-                    <div class="tag-input-inner">
-                      <span
-                        v-for="domain in allowedDomainTags"
-                        :key="domain"
-                        class="tag-input-tag"
-                      >
-                        <span class="tag-input-tag-text">{{ domain }}</span>
-                        <button
-                          type="button"
-                          class="tag-input-tag-remove"
-                          @click="removeAllowedDomain(domain)"
-                        >
-                          <PhTrash :size="14" />
-                        </button>
-                      </span>
-                      <input
-                        v-model="allowedDomainInput"
-                        class="tag-input-input"
-                        @keyup="handleAllowedDomainKeyup"
-                        @blur="handleAllowedDomainBlur"
-                      />
-                    </div>
-                  </div>
+                  <TagInput v-model="allowedDomainTags" />
                 </div>
                 <div class="form-item">
                   <label class="form-label">
                     IP 黑名单（多个 IP 用逗号或换行分隔，留空则不限制）
                   </label>
-                  <div class="tag-input">
-                    <div class="tag-input-inner">
-                      <span v-for="ip in blockedIpTags" :key="ip" class="tag-input-tag">
-                        <span class="tag-input-tag-text">{{ ip }}</span>
-                        <button
-                          type="button"
-                          class="tag-input-tag-remove"
-                          @click="removeBlockedIp(ip)"
-                        >
-                          <PhTrash :size="14" />
-                        </button>
-                      </span>
-                      <input
-                        v-model="blockedIpInput"
-                        class="tag-input-input"
-                        @keyup="handleBlockedIpKeyup"
-                        @blur="handleBlockedIpBlur"
-                      />
-                    </div>
-                  </div>
+                  <TagInput v-model="blockedIpTags" />
                 </div>
                 <div class="form-item">
                   <label class="form-label"
                     >邮箱黑名单（多个邮箱用逗号或换行分隔，留空则不限制）</label
                   >
-                  <div class="tag-input">
-                    <div class="tag-input-inner">
-                      <span
-                        v-for="email in blockedEmailTags"
-                        :key="email"
-                        class="tag-input-tag"
-                      >
-                        <span class="tag-input-tag-text">{{ email }}</span>
-                        <button
-                          type="button"
-                          class="tag-input-tag-remove"
-                          @click="removeBlockedEmail(email)"
-                        >
-                          <PhTrash :size="14" />
-                        </button>
-                      </span>
-                      <input
-                        v-model="blockedEmailInput"
-                        class="tag-input-input"
-                        @keyup="handleBlockedEmailKeyup"
-                        @blur="handleBlockedEmailBlur"
-                      />
-                    </div>
-                  </div>
+                  <TagInput v-model="blockedEmailTags" />
                 </div>
 
                 <div class="card-actions">
@@ -563,6 +498,7 @@ import {
 } from "../../api/admin";
 
 import DomainSettings from "./components/DomainSettings.vue";
+import TagInput from "../../components/TagInput.vue";
 
 const DEFAULT_REPLY_TEMPLATE = `<div style="background-color:#f4f4f5;padding:24px 0;">
       <div style="max-width:640px;margin:0 auto;background:#ffffff;border-radius:12px;border:1px solid #e5e7eb;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;color:#111827;">
@@ -646,11 +582,8 @@ const avatarPrefix = ref("");
 const commentAdminEnabled = ref(false);
 const adminLayoutTitle = ref("CWD 评论系统");
 const allowedDomainTags = ref<string[]>([]);
-const allowedDomainInput = ref("");
 const blockedIpTags = ref<string[]>([]);
-const blockedIpInput = ref("");
 const blockedEmailTags = ref<string[]>([]);
-const blockedEmailInput = ref("");
 const commentAdminKey = ref("");
 const adminKeySet = ref(false);
 const requireReview = ref(false);
@@ -702,135 +635,6 @@ watch(
     }
   },
 );
-
-function addAllowedDomainsFromInput() {
-  const raw = allowedDomainInput.value;
-  if (!raw) {
-    return;
-  }
-  const parts = raw
-    .split(/[,，\s]+/)
-    .map((d) => d.trim())
-    .filter(Boolean);
-  if (parts.length === 0) {
-    allowedDomainInput.value = "";
-    return;
-  }
-  const existing = new Set(allowedDomainTags.value);
-  for (const part of parts) {
-    if (!existing.has(part)) {
-      allowedDomainTags.value.push(part);
-      existing.add(part);
-    }
-  }
-  allowedDomainInput.value = "";
-}
-
-function handleAllowedDomainKeyup(event: KeyboardEvent) {
-  if (
-    event.key === " " ||
-    event.key === "Spacebar" ||
-    event.key === "," ||
-    event.key === "，" ||
-    event.key === "Enter"
-  ) {
-    addAllowedDomainsFromInput();
-  }
-}
-
-function handleAllowedDomainBlur() {
-  addAllowedDomainsFromInput();
-}
-
-function removeAllowedDomain(domain: string) {
-  allowedDomainTags.value = allowedDomainTags.value.filter((d) => d !== domain);
-}
-
-function addBlockedIpFromInput() {
-  const raw = blockedIpInput.value;
-  if (!raw) {
-    return;
-  }
-  const parts = raw
-    .split(/[,，\s]+/)
-    .map((d) => d.trim())
-    .filter(Boolean);
-  if (parts.length === 0) {
-    blockedIpInput.value = "";
-    return;
-  }
-  const existing = new Set(blockedIpTags.value);
-  for (const part of parts) {
-    if (!existing.has(part)) {
-      blockedIpTags.value.push(part);
-      existing.add(part);
-    }
-  }
-  blockedIpInput.value = "";
-}
-
-function handleBlockedIpKeyup(event: KeyboardEvent) {
-  if (
-    event.key === " " ||
-    event.key === "Spacebar" ||
-    event.key === "," ||
-    event.key === "，" ||
-    event.key === "Enter"
-  ) {
-    addBlockedIpFromInput();
-  }
-}
-
-function handleBlockedIpBlur() {
-  addBlockedIpFromInput();
-}
-
-function removeBlockedIp(ip: string) {
-  blockedIpTags.value = blockedIpTags.value.filter((t) => t !== ip);
-}
-
-function addBlockedEmailFromInput() {
-  const raw = blockedEmailInput.value;
-  if (!raw) {
-    return;
-  }
-  const parts = raw
-    .split(/[,，\s]+/)
-    .map((d) => d.trim())
-    .filter(Boolean);
-  if (parts.length === 0) {
-    blockedEmailInput.value = "";
-    return;
-  }
-  const existing = new Set(blockedEmailTags.value);
-  for (const part of parts) {
-    if (!existing.has(part)) {
-      blockedEmailTags.value.push(part);
-      existing.add(part);
-    }
-  }
-  blockedEmailInput.value = "";
-}
-
-function handleBlockedEmailKeyup(event: KeyboardEvent) {
-  if (
-    event.key === " " ||
-    event.key === "Spacebar" ||
-    event.key === "," ||
-    event.key === "，" ||
-    event.key === "Enter"
-  ) {
-    addBlockedEmailFromInput();
-  }
-}
-
-function handleBlockedEmailBlur() {
-  addBlockedEmailFromInput();
-}
-
-function removeBlockedEmail(email: string) {
-  blockedEmailTags.value = blockedEmailTags.value.filter((t) => t !== email);
-}
 
 const savingEmail = ref(false);
 const testingEmail = ref(false);
@@ -934,15 +738,12 @@ async function load() {
     allowedDomainTags.value = domains
       .map((d: string) => String(d).trim())
       .filter(Boolean);
-    allowedDomainInput.value = "";
     blockedIpTags.value = Array.isArray(commentRes.blockedIps)
       ? commentRes.blockedIps
       : [];
-    blockedIpInput.value = "";
     blockedEmailTags.value = Array.isArray(commentRes.blockedEmails)
       ? commentRes.blockedEmails
       : [];
-    blockedEmailInput.value = "";
     commentAdminKey.value = commentRes.adminKey || "";
     adminKeySet.value = !!commentRes.adminKeySet;
     requireReview.value = !!commentRes.requireReview;
