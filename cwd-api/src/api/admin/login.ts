@@ -15,7 +15,7 @@ export const adminLogin = async (c: Context<{ Bindings: Bindings }>) => {
 	// 1. 检查 IP 是否被封禁
 	const isBlocked = await c.env.CWD_AUTH_KV.get(blockKey);
 	if (isBlocked) {
-		return c.json({ message: 'IP is blocked due to multiple failed login attempts' }, 403);
+		return c.json({ message: 'IP 已被封禁，30 分钟后重试' }, 403);
 	}
 
 	// 2. 验证用户名密码
@@ -32,11 +32,11 @@ export const adminLogin = async (c: Context<{ Bindings: Bindings }>) => {
 			// 达到上限，封禁 30 分钟
 			await c.env.CWD_AUTH_KV.put(blockKey, '1', { expirationTtl: LOCK_TIME });
 			await c.env.CWD_AUTH_KV.delete(attemptKey); // 清除尝试计数
-			return c.json({ message: 'IP is blocked due to multiple failed login attempts' }, 403);
+			return c.json({ message: 'IP 已被封禁，30 分钟后重试' }, 403);
 		} else {
 			// 记录失败次数，设置 10 分钟内连续失败才计数
 			await c.env.CWD_AUTH_KV.put(attemptKey, attempts.toString(), { expirationTtl: 600 });
-			return c.json({ message: 'Invalid username or password', failedAttempts: attempts }, 401);
+			return c.json({ message: '用户名或密码无效', failedAttempts: attempts }, 401);
 		}
 	}
 

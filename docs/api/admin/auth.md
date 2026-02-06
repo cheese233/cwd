@@ -85,7 +85,7 @@ POST /admin/login
 
   ```json
   {
-  	"message": "Invalid username or password",
+  	"message": "用户名或密码无效",
   	"failedAttempts": 3
   }
   ```
@@ -97,7 +97,7 @@ POST /admin/login
 
   ```json
   {
-  	"message": "IP is blocked due to multiple failed login attempts"
+  	"message": "IP 已被封禁，30 分钟后重试"
   }
   ```
 
