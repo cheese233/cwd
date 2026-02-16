@@ -50,7 +50,6 @@ Token 通过登录接口获取，有效期为 48 小时。
 ### [统计数据相关](./admin/stats.md)
 
 - **获取评论统计数据** `GET /admin/stats/comments` - 用于管理后台「数据看板」展示评论整体统计
-- **获取域名列表** `GET /admin/stats/domains` - 获取所有已产生评论或访问记录的域名列表
 
 ### [访问统计相关](./admin/analytics.md)
 

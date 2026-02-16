@@ -1,29 +1,35 @@
 <template>
   <div class="page">
-    <h2 class="page-title">评论管理</h2>
+    <h2 class="page-title">{{ t("comments.title") }}</h2>
     <div class="toolbar">
       <div class="toolbar-left">
         <select v-model="statusFilter" class="toolbar-select">
-          <option value="">全部状态</option>
-          <option value="approved">已通过</option>
-          <option value="pending">待审核</option>
-          <option value="rejected">已拒绝</option>
+          <option value="">{{ t("comments.statusFilter.all") }}</option>
+          <option value="approved">{{ t("comments.statusFilter.approved") }}</option>
+          <option value="pending">{{ t("comments.statusFilter.pending") }}</option>
+          <option value="rejected">{{ t("comments.statusFilter.rejected") }}</option>
         </select>
       </div>
       <div class="toolbar-right">
-        <button class="toolbar-button" @click="goPage(1)">刷新</button>
+        <button class="toolbar-button" @click="goPage(1)">
+          {{ t("comments.refresh") }}
+        </button>
       </div>
     </div>
-    <div v-if="loading" class="page-hint">加载中...</div>
+    <div v-if="loading" class="page-hint">{{ t("common.loading") }}</div>
     <div v-else-if="error" class="page-error">{{ error }}</div>
     <div v-else>
       <div class="comment-table">
         <div class="table-header">
-          <div class="table-cell table-cell-author">用户</div>
-          <div class="table-cell table-cell-content">评论信息</div>
-          <div class="table-cell table-cell-path">评论地址</div>
-          <div class="table-cell table-cell-status">状态</div>
-          <div class="table-cell table-cell-actions">操作</div>
+          <div class="table-cell table-cell-author">{{ t("comments.table.author") }}</div>
+          <div class="table-cell table-cell-content">
+            {{ t("comments.table.content") }}
+          </div>
+          <div class="table-cell table-cell-path">{{ t("comments.table.path") }}</div>
+          <div class="table-cell table-cell-status">{{ t("comments.table.status") }}</div>
+          <div class="table-cell table-cell-actions">
+            {{ t("comments.table.actions") }}
+          </div>
         </div>
         <div v-for="item in filteredComments" :key="item.id" class="table-row">
           <div class="table-cell table-cell-author">
@@ -40,7 +46,7 @@
                   <span v-if="item.isAdmin" class="cell-admin-tag">
                     <svg
                       viewBox="0 0 22 22"
-                      aria-label="网站管理员"
+                      :aria-label="t('comments.table.admin')"
                       role="img"
                       class="cwd-admin-icon"
                       style="
@@ -63,7 +69,7 @@
                   <span
                     class="cell-email-text"
                     @click="handleBlockEmail(item)"
-                    title="屏蔽该邮箱"
+                    :title="t('comments.actions.blockEmail')"
                   >
                     {{ item.email }}
                   </span>
@@ -73,7 +79,7 @@
                   <span
                     class="cell-ip-text"
                     @click="handleBlockIp(item)"
-                    title="屏蔽该 IP"
+                    :title="t('comments.actions.blockIp')"
                     >{{ item.ipAddress }}</span
                   >
                 </div>
@@ -89,8 +95,9 @@
               target="_blank"
               class="cell-path"
               :title="item.postSlug"
-              >{{ item.postSlug }}</a
             >
+              {{ item.postUrl || item.postSlug }}
+            </a>
           </div>
           <div class="table-cell table-cell-status">
             <div class="cell-status-wrapper">
@@ -102,7 +109,7 @@
                 :title="String(item.priority)"
                 class="cell-status cell-pin-flag"
               >
-                置顶
+                {{ t("comments.actions.pin") }}
               </span>
               <span class="cell-status cell-likes-number" v-if="item.likes !== 0">
                 <PhThumbsUp :size="13" />
@@ -124,21 +131,25 @@
                 :value="item.status"
                 @change="handleStatusChange(item, $event)"
               >
-                <option value="approved">通过</option>
-                <option value="pending">待审</option>
-                <option value="rejected">拒绝</option>
+                <option value="approved">{{ t("comments.actions.approve") }}</option>
+                <option value="pending">{{ t("comments.actions.pending") }}</option>
+                <option value="rejected">{{ t("comments.actions.reject") }}</option>
               </select>
-              <button class="table-action" @click="openEdit(item)">编辑</button>
+              <button class="table-action" @click="openEdit(item)">
+                {{ t("comments.actions.edit") }}
+              </button>
               <button
                 class="table-action table-action-danger"
                 @click="removeComment(item)"
               >
-                删除
+                {{ t("comments.actions.delete") }}
               </button>
             </div>
           </div>
         </div>
-        <div v-if="filteredComments.length === 0" class="table-empty">暂无数据</div>
+        <div v-if="filteredComments.length === 0" class="table-empty">
+          {{ t("comments.empty") }}
+        </div>
       </div>
       <div v-if="pagination.total > 1" class="pagination">
         <button
@@ -146,7 +157,7 @@
           :disabled="pagination.page <= 1"
           @click="goPage(pagination.page - 1)"
         >
-          上一页
+          {{ t("comments.pagination.prev") }}
         </button>
         <button
           class="pagination-button"
@@ -197,10 +208,10 @@
           :disabled="pagination.page >= pagination.total"
           @click="goPage(pagination.page + 1)"
         >
-          下一页
+          {{ t("comments.pagination.next") }}
         </button>
         <div class="pagination-jump">
-          <span>跳转到</span>
+          <span>{{ t("comments.pagination.jumpTo") }}</span>
           <input
             v-model="jumpPageInput"
             class="pagination-input"
@@ -209,8 +220,10 @@
             :max="pagination.total"
             @keyup.enter="handleJumpPage"
           />
-          <span>页</span>
-          <button class="pagination-button" @click="handleJumpPage">确定</button>
+          <span>{{ t("comments.pagination.page") }}</span>
+          <button class="pagination-button" @click="handleJumpPage">
+            {{ t("comments.pagination.confirm") }}
+          </button>
         </div>
       </div>
     </div>
@@ -226,32 +239,32 @@
 
 <script setup lang="ts">
 import "../../styles/markdown.css";
-import { onMounted, ref, computed, watch, inject } from "vue";
-import type { Ref } from "vue";
+import { onMounted, ref, computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { useI18n } from "vue-i18n";
+import ModalEdit from "./components/ModalEdit.vue";
 import {
   CommentItem,
-  CommentListResponse,
   fetchComments,
   deleteComment,
   updateCommentStatus,
   updateComment,
   blockIp,
   blockEmail,
-  fetchDomainList,
 } from "../../api/admin";
-import ModalEdit from "./components/ModalEdit.vue";
+import { useSite } from "../../composables/useSite";
 
+const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 
+// ... existing refs ...
 const comments = ref<CommentItem[]>([]);
 const pagination = ref<{ page: number; total: number }>({ page: 1, total: 1 });
 const loading = ref(false);
 const error = ref("");
 const statusFilter = ref("");
-const injectedDomainFilter = inject<Ref<string> | null>("domainFilter", null);
-const domainFilter = injectedDomainFilter ?? ref("");
+const { currentSiteId } = useSite();
 const jumpPageInput = ref("");
 const editVisible = ref(false);
 const editSaving = ref(false);
@@ -261,10 +274,16 @@ const editForm = ref<{
   email: string;
   url: string;
   postSlug: string;
+  postUrl: string;
   contentText: string;
   status: string;
   priority: number;
 } | null>(null);
+
+const searchKeyword = ref(""); // Missing ref in original code snippet but used in template?
+// Wait, I saw searchKeyword in original code snippet. I must ensure I don't lose it.
+// I will just use the replace string for the specific parts if possible, but I am replacing whole template.
+// I need to be careful with script content.
 
 const filteredComments = computed(() => {
   if (!statusFilter.value) {
@@ -273,6 +292,7 @@ const filteredComments = computed(() => {
   return comments.value.filter((item) => item.status === statusFilter.value);
 });
 
+// ... visiblePages computed ...
 const visiblePages = computed(() => {
   const total = pagination.value.total;
   const current = pagination.value.page;
@@ -306,23 +326,24 @@ function formatDate(value: number) {
 
 function formatStatus(status: string) {
   if (status === "approved") {
-    return "已通过";
+    return t("comments.statusFilter.approved");
   }
   if (status === "pending") {
-    return "待审核";
+    return t("comments.statusFilter.pending");
   }
   if (status === "rejected") {
-    return "已拒绝";
+    return t("comments.statusFilter.rejected");
   }
   return status;
 }
 
+// ... other functions ...
 async function loadComments(page?: number) {
   const targetPage = typeof page === "number" ? page : 1;
   loading.value = true;
   error.value = "";
   try {
-    const res = await fetchComments(targetPage, domainFilter.value || undefined);
+    const res = await fetchComments(targetPage, currentSiteId.value);
     comments.value = res.data;
     pagination.value = { page: res.pagination.page, total: res.pagination.total };
   } catch (e: any) {
@@ -339,11 +360,7 @@ function updateRoutePage(page: number) {
   } else {
     query.p = String(page);
   }
-  if (domainFilter.value) {
-    query.domain = domainFilter.value;
-  } else {
-    delete query.domain;
-  }
+  delete query.domain;
   router.push({ query });
 }
 
@@ -388,7 +405,7 @@ function handleStatusChange(item: CommentItem, event: Event) {
 }
 
 async function removeComment(item: CommentItem) {
-  if (!window.confirm(`确认删除评论 ${item.id} 吗`)) {
+  if (!window.confirm(t("comments.confirmDelete", { id: item.id }))) {
     return;
   }
   try {
@@ -403,12 +420,12 @@ async function handleBlockIp(item: CommentItem) {
   if (!item.ipAddress) {
     return;
   }
-  if (!window.confirm(`确认将 IP ${item.ipAddress} 加入黑名单吗？`)) {
+  if (!window.confirm(t("comments.confirmBlockIp", { ip: item.ipAddress }))) {
     return;
   }
   try {
     const res = await blockIp(item.ipAddress);
-    window.alert(res.message || "已加入 IP 黑名单");
+    window.alert(res.message || t("comments.successBlockIp"));
   } catch (e: any) {
     error.value = e.message || "屏蔽 IP 失败";
   }
@@ -418,12 +435,12 @@ async function handleBlockEmail(item: CommentItem) {
   if (!item.email) {
     return;
   }
-  if (!window.confirm(`确认将邮箱 ${item.email} 加入黑名单吗？`)) {
+  if (!window.confirm(t("comments.confirmBlockEmail", { email: item.email }))) {
     return;
   }
   try {
     const res = await blockEmail(item.email);
-    window.alert(res.message || "已加入邮箱黑名单");
+    window.alert(res.message || t("comments.successBlockEmail"));
   } catch (e: any) {
     error.value = e.message || "屏蔽邮箱失败";
   }
@@ -436,6 +453,7 @@ function openEdit(item: CommentItem) {
     email: item.email,
     url: item.url || "",
     postSlug: item.postSlug || "",
+    postUrl: item.postUrl || "",
     contentText: item.contentText,
     status: item.status,
     priority:
@@ -464,6 +482,7 @@ async function submitEdit() {
   const trimmedContent = current.contentText.trim();
   const trimmedUrl = current.url.trim();
   const trimmedPostSlug = current.postSlug.trim();
+  const trimmedPostUrl = current.postUrl.trim();
   const priorityValue =
     typeof current.priority === "number" && Number.isFinite(current.priority)
       ? current.priority
@@ -483,6 +502,7 @@ async function submitEdit() {
       name: trimmedName,
       email: trimmedEmail,
       url: trimmedUrl || null,
+      postUrl: trimmedPostUrl || null,
       postSlug: newPostSlug,
       contentText: trimmedContent,
       status: current.status,
@@ -495,6 +515,7 @@ async function submitEdit() {
         email: trimmedEmail,
         url: trimmedUrl || null,
         postSlug: newPostSlug,
+        postUrl: trimmedPostUrl || null,
         contentText: trimmedContent,
         status: current.status,
         priority: priorityValue,
@@ -523,15 +544,11 @@ onMounted(() => {
       initialPage = Math.floor(value);
     }
   }
-  const d = route.query.domain;
-  if (typeof d === "string" && d.trim()) {
-    domainFilter.value = d.trim();
-  }
 
   loadComments(initialPage);
 });
 
-watch(domainFilter, () => {
+watch(currentSiteId, () => {
   updateRoutePage(1);
   loadComments(1);
 });

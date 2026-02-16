@@ -14,11 +14,22 @@ Authorization: Bearer <token>
 GET /admin/comments/export
 ```
 
-导出所有评论数据，返回格式为 JSON，字段与数据库结构一致。
+导出评论数据，返回格式为 JSON，字段与数据库结构一致。
 
 - 方法：`GET`
 - 路径：`/admin/comments/export`
 - 鉴权：需要（Bearer Token）
+
+**查询参数**
+
+| 名称     | 位置  | 类型   | 必填 | 说明                            |
+| -------- | ----- | ------ | ---- | ------------------------------- |
+| `siteId` | query | string | 否   | 按站点 ID 筛选导出的评论数据，如 `blog`、`docs` |
+
+说明：
+
+- 当提供 `siteId` 参数且不为 `default` 时，仅导出该站点下的评论数据
+- 不提供 `siteId` 参数时，导出所有评论数据
 
 **成功响应**
 
@@ -41,7 +52,8 @@ GET /admin/comments/export
 		"content_text": "很棒的文章！",
 		"content_html": "很棒的文章！",
 		"parent_id": null,
-		"status": "approved"
+		"status": "approved",
+		"site_id": "blog"
 	}
 ]
 ```
@@ -98,7 +110,9 @@ POST /admin/comments/import
 说明：
 
 - 若从 CWD 自身导出的评论数据进行恢复，可直接将 `/admin/comments/export` 接口导出的 JSON 原样提交到本接口；
-- 若从 Twikoo / Artalk 等其他评论系统迁移数据，可通过管理后台「评论数据导入」功能上传对应的 JSON 文件，前端会自动转换为上述结构后调用本接口。
+- 若从 Twikoo / Artalk 等其他评论系统迁移数据，可通过管理后台「评论数据导入」功能
+- 上传对应的 JSON 文件，前端会自动转换为上述结构后调用本接口。
+- 数据导入采用 `INSERT OR REPLACE` 策略，若提供 `id` 字段且存在则会覆盖原有数据
 
 **成功响应**
 
@@ -249,6 +263,17 @@ GET /admin/export/stats
 - 路径：`/admin/export/stats`
 - 鉴权：需要（Bearer Token）
 
+**查询参数**
+
+| 名称     | 位置  | 类型   | 必填 | 说明                            |
+| -------- | ----- | ------ | ---- | ------------------------------- |
+| `siteId` | query | string | 否   | 按站点 ID 筛选导出的统计数据，如 `blog`、`docs` |
+
+说明：
+
+- 当提供 `siteId` 参数且不为 `default` 时，仅导出该站点下的统计数据（包括页面访问汇总、按日访问明细以及点赞明细）
+- 不提供 `siteId` 参数时，导出所有站点的统计数据
+
 **成功响应**
 
 - 状态码：`200`
@@ -274,7 +299,8 @@ GET /admin/export/stats
 			"domain": "example.com",
 			"count": 50,
 			"created_at": 1738060800000,
-			"updated_at": 1738147200000
+			"updated_at": 1738147200000,
+			"site_id": "blog"
 		}
 	],
 	"likes": [
@@ -282,7 +308,8 @@ GET /admin/export/stats
 			"id": 1,
 			"page_slug": "https://example.com/blog/hello-world",
 			"user_id": "some-user-id",
-			"created_at": 1738060800000
+			"created_at": 1738060800000,
+			"site_id": "blog"
 		}
 	]
 }

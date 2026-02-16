@@ -35,6 +35,7 @@ export class CommentList extends Component {
    */
   constructor(container, props = {}) {
     super(container, props);
+    this.t = props.t || ((k) => k);
     this.loadingComponent = null;
     this.paginationComponent = null;
     this.commentItems = new Map(); // 缓存 CommentItem 实例，key 为 comment.id
@@ -106,7 +107,8 @@ export class CommentList extends Component {
           onCancelReply: () => this.handleCancelReply(),
           onUpdateReplyContent: (content) => this.handleUpdateReplyContent(content),
           onClearReplyError: () => this.handleClearReplyError(),
-          onLikeComment: (commentId, isLike) => this.handleLikeComment(commentId, isLike)
+          onLikeComment: (commentId, isLike) => this.handleLikeComment(commentId, isLike),
+          t: this.props.t
         });
         commentItem.render();
         // 缓存 CommentItem 实例
@@ -119,7 +121,7 @@ export class CommentList extends Component {
       const emptyEl = this.createElement('div', {
         className: 'cwd-empty',
         children: [
-          this.createTextElement('p', '暂无评论，快来抢沙发吧！', 'cwd-empty-text')
+          this.createTextElement('p', this.t('noComments'), 'cwd-empty-text')
         ]
       });
       root.appendChild(emptyEl);

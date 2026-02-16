@@ -11,7 +11,9 @@ const STORAGE_KEY = 'cwd-dev-config';
 const DEFAULT_CONFIG = {
 	el: '#comments',
 	apiBaseUrl: 'http://localhost:8788',
+	siteId: 'cwd-dev-config',
 	theme: 'light', // 默认 light / dark
+	postSlug: '',
 };
 
 let widgetInstance = null;
@@ -47,10 +49,16 @@ function populateInputs(config) {
 	const apiBaseUrlInput = document.getElementById('apiBaseUrl');
 	const themeSelect = document.getElementById('theme');
 	const avatarPrefixInput = document.getElementById('avatarPrefix');
+	const siteIdInput = document.getElementById('siteId');
+	const postSlugInput = document.getElementById('postSlug');
+	const langSelect = document.getElementById('lang');
 
 	if (apiBaseUrlInput) apiBaseUrlInput.value = config.apiBaseUrl || DEFAULT_CONFIG.apiBaseUrl;
 	if (themeSelect) themeSelect.value = config.theme || DEFAULT_CONFIG.theme;
 	if (avatarPrefixInput) avatarPrefixInput.value = config.avatarPrefix || DEFAULT_CONFIG.avatarPrefix;
+	if (siteIdInput) siteIdInput.value = config.siteId || DEFAULT_CONFIG.siteId || '';
+	if (postSlugInput) postSlugInput.value = config.postSlug || DEFAULT_CONFIG.postSlug || '';
+	if (langSelect) langSelect.value = config.lang || DEFAULT_CONFIG.lang;
 }
 
 /**
@@ -59,7 +67,10 @@ function populateInputs(config) {
 function getConfigFromInputs() {
 	const apiBaseUrl = document.getElementById('apiBaseUrl')?.value || DEFAULT_CONFIG.apiBaseUrl;
 	const theme = document.getElementById('theme')?.value || DEFAULT_CONFIG.theme;
-	return { apiBaseUrl, theme };
+	const siteId = document.getElementById('siteId')?.value || DEFAULT_CONFIG.siteId || '';
+	const postSlug = document.getElementById('postSlug')?.value || DEFAULT_CONFIG.postSlug || '';
+	const lang = document.getElementById('lang')?.value || DEFAULT_CONFIG.lang;
+	return { apiBaseUrl, theme, siteId, postSlug, lang };
 }
 
 /**
@@ -88,6 +99,9 @@ async function initWidget() {
 		widgetInstance = new CWDComments({
 			el: '#comments',
 			apiBaseUrl: config.apiBaseUrl,
+			siteId: config.siteId,
+			postSlug: config.postSlug,
+			lang: config.lang,
 		});
 		widgetInstance.mount();
 	} catch (error) {}
@@ -148,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // 监听输入框变化，实时保存
 document.addEventListener('DOMContentLoaded', () => {
-	const inputs = ['apiBaseUrl', 'theme'];
+	const inputs = ['apiBaseUrl', 'theme', 'siteId', 'postSlug'];
 	inputs.forEach((id) => {
 		const element = document.getElementById(id);
 		if (element) {

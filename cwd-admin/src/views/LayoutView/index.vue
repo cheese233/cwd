@@ -4,7 +4,7 @@
       <button
         class="layout-menu-toggle"
         @click="toggleSider"
-        aria-label="切换菜单"
+        :aria-label="t('layout.toggleMenu')"
         type="button"
       >
         <PhTextIndent :size="20" />
@@ -12,16 +12,16 @@
       <div class="layout-title">{{ layoutTitle }}</div>
       <div class="layout-actions-wrapper">
         <div class="layout-domain-filter layout-domain-filter-header">
-          <select v-model="domainFilter" class="layout-domain-select">
-            <option value="">全部域名</option>
-            <option v-for="item in domainOptions" :key="item" :value="item">
-              {{ item }}
+          <select v-model="currentSiteId" class="layout-domain-select">
+            <option :value="defaultSiteId">{{ getSiteLabel(defaultSiteId) }}</option>
+            <option v-for="item in siteOptions" :key="item.value" :value="item.value">
+              {{ getSiteLabel(item.value) }}
             </option>
           </select>
         </div>
         <div class="layout-actions">
           <a class="layout-button" href="https://cwd.js.org" target="_blank">
-            使用文档
+            {{ t("layout.docs") }}
           </a>
           <a class="layout-button" href="https://github.com/anghunk/cwd" target="_blank">
             Github
@@ -36,20 +36,22 @@
             <PhMoon v-else-if="theme === 'dark'" :size="16" />
             <PhAirplay v-else :size="16" />
           </button>
-          <button class="layout-button" @click="handleLogout">退出</button>
+          <button class="layout-button" @click="handleLogout">
+            {{ t("layout.logout") }}
+          </button>
         </div>
 
         <button
           class="layout-actions-toggle"
           @click="toggleActions"
-          aria-label="更多操作"
+          :aria-label="t('layout.moreActions')"
           type="button"
         >
           <PhDotsThreeVertical :size="20" bold />
         </button>
         <div v-if="isActionsOpen" class="layout-actions-dropdown">
           <button class="layout-actions-item" type="button" @click="openDocs">
-            使用文档
+            {{ t("layout.docs") }}
           </button>
           <button class="layout-actions-item" type="button" @click="openGithub">
             Github
@@ -59,7 +61,7 @@
             type="button"
             @click="handleLogoutFromActions"
           >
-            退出
+            {{ t("layout.logout") }}
           </button>
         </div>
       </div>
@@ -70,10 +72,10 @@
         :class="{ 'layout-sider-mobile-open': isMobileSiderOpen }"
       >
         <div class="layout-sider-domain-filter">
-          <select v-model="domainFilter" class="layout-domain-select">
-            <option value="">全部域名</option>
-            <option v-for="item in domainOptions" :key="item" :value="item">
-              {{ item }}
+          <select v-model="currentSiteId" class="layout-domain-select">
+            <option :value="defaultSiteId">{{ getSiteLabel(defaultSiteId) }}</option>
+            <option v-for="item in siteOptions" :key="item.value" :value="item.value">
+              {{ getSiteLabel(item.value) }}
             </option>
           </select>
         </div>
@@ -84,7 +86,7 @@
             @click="goComments"
           >
             <PhChatCircleDots class="menu-item-icon" :size="18" />
-            <span>评论管理</span>
+            <span>{{ t("menu.comments") }}</span>
           </li>
           <li
             class="menu-item"
@@ -92,7 +94,7 @@
             @click="goStats"
           >
             <PhSquaresFour class="menu-item-icon" :size="18" />
-            <span>数据看板</span>
+            <span>{{ t("menu.stats") }}</span>
           </li>
           <li
             class="menu-item"
@@ -100,7 +102,7 @@
             @click="goAnalytics"
           >
             <PhChartBar class="menu-item-icon" :size="18" />
-            <span>访问统计</span>
+            <span>{{ t("menu.analytics") }}</span>
           </li>
           <li
             class="menu-item"
@@ -108,7 +110,7 @@
             @click="goSettings"
           >
             <PhGear class="menu-item-icon" :size="18" />
-            <span>网站设置</span>
+            <span>{{ t("menu.settings") }}</span>
           </li>
           <li
             class="menu-item"
@@ -116,7 +118,7 @@
             @click="goData"
           >
             <PhDatabase class="menu-item-icon" :size="18" />
-            <span>数据管理</span>
+            <span>{{ t("menu.data") }}</span>
           </li>
         </ul>
         <div class="layout-sider-footer" @click="openVersionModal">
@@ -133,36 +135,42 @@
     </div>
     <div v-if="versionModalVisible" class="modal-overlay" @click.self="closeVersionModal">
       <div class="modal">
-        <h3 class="modal-title">版本信息</h3>
+        <h3 class="modal-title">{{ t("layout.version.title") }}</h3>
         <div class="modal-body">
           <p class="modal-row">
-            <span class="modal-label">API 地址</span>
-            <span class="modal-value">{{ checkedApiBaseUrl || "未配置" }}</span>
+            <span class="modal-label">{{ t("layout.version.apiAddress") }}</span>
+            <span class="modal-value">{{
+              checkedApiBaseUrl || t("layout.version.notConfigured")
+            }}</span>
           </p>
           <p class="modal-row">
-            <span class="modal-label">接口版本</span>
+            <span class="modal-label">{{ t("layout.version.apiVersion") }}</span>
             <span class="modal-value">
-              {{ apiVersion || (apiVersionError ? "未获取到" : "加载中...") }}
+              {{
+                apiVersion ||
+                (apiVersionError
+                  ? t("layout.version.notFetched")
+                  : t("layout.version.loading"))
+              }}
             </span>
           </p>
           <p class="modal-row">
-            <span class="modal-label">后台版本</span>
+            <span class="modal-label">{{ t("layout.version.adminVersion") }}</span>
             <span class="modal-value">{{ adminVersion }}</span>
           </p>
           <p v-if="apiVersion && apiVersion === adminVersion" class="modal-status">
-            当前后台与接口版本一致，可以正常使用。
+            {{ t("layout.version.match") }}
           </p>
           <p v-else-if="apiVersion && apiVersion !== adminVersion" class="modal-status">
-            当前后台与接口版本不一致，推荐将 API 服务更新到与后台版本一致，
-            以避免潜在的兼容性问题。
+            {{ t("layout.version.mismatch") }}
           </p>
           <p v-else-if="apiVersionError" class="modal-status">
-            无法获取接口版本：{{ apiVersionError }}
+            {{ t("layout.version.fetchError") }} {{ apiVersionError }}
           </p>
         </div>
         <div class="modal-actions">
           <button class="modal-btn" type="button" @click="closeVersionModal">
-            我知道了
+            {{ t("layout.version.ok") }}
           </button>
         </div>
       </div>
@@ -171,19 +179,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, provide, computed } from "vue";
+import { ref, onMounted, provide, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import { logoutAdmin, fetchDomainList, fetchAdminDisplaySettings, fetchFeatureSettings } from "../../api/admin";
+import { useI18n } from "vue-i18n";
+import { logoutAdmin, fetchAdminDisplaySettings, fetchSiteList } from "../../api/admin";
 import { useTheme } from "../../composables/useTheme";
+import { useSite } from "../../composables/useSite";
 import packageJson from "../../../package.json";
 
-const DOMAIN_STORAGE_KEY = "cwd_admin_domain_filter";
 const API_BASE_URL_KEY = "cwd_admin_api_base_url";
 const SITE_TITLE_KEY = "cwd_admin_site_title";
 
 const router = useRouter();
 const route = useRoute();
+const { t } = useI18n();
 const { theme, setTheme } = useTheme();
+const { currentSiteId } = useSite();
 
 const isMobileSiderOpen = ref(false);
 const isActionsOpen = ref(false);
@@ -195,9 +206,9 @@ const versionModalVisible = ref(false);
 const layoutTitle = ref(localStorage.getItem(SITE_TITLE_KEY) || "CWD 评论系统");
 
 const themeTitle = computed(() => {
-  if (theme.value === "light") return "明亮模式";
-  if (theme.value === "dark") return "暗黑模式";
-  return "跟随系统";
+  if (theme.value === "light") return t("layout.theme.light");
+  if (theme.value === "dark") return t("layout.theme.dark");
+  return t("layout.theme.system");
 });
 
 function cycleTheme() {
@@ -206,34 +217,30 @@ function cycleTheme() {
   else setTheme("system");
 }
 
-const storedDomain =
-  typeof window !== "undefined"
-    ? window.localStorage.getItem(DOMAIN_STORAGE_KEY) || ""
-    : "";
-const domainFilter = ref(storedDomain);
-const domainOptions = ref<string[]>([]);
+type SiteOption = { label: string; value: string };
+const siteOptions = ref<SiteOption[]>([]);
+const defaultSiteId = "default";
 
-async function loadDomains() {
+function getSiteLabel(value: string) {
+  if (!value || value === "default") {
+    return t("layout.defaultSite");
+  }
+  return value;
+}
+
+async function loadSites() {
   try {
-    const [domainRes, settingsRes] = await Promise.all([
-      fetchDomainList(),
-      fetchFeatureSettings().catch(() => ({ visibleDomains: undefined }))
-    ]);
-    
-    let domains = Array.isArray(domainRes.domains) ? domainRes.domains : [];
-    
-    // 如果配置了显示域名，则仅显示配置的域名
-    if (settingsRes.visibleDomains && Array.isArray(settingsRes.visibleDomains) && settingsRes.visibleDomains.length > 0) {
-        domains = settingsRes.visibleDomains;
-    }
-
-    const set = new Set(domains);
-    if (domainFilter.value && !set.has(domainFilter.value)) {
-      set.add(domainFilter.value);
-    }
-    domainOptions.value = Array.from(set);
+    const res = await fetchSiteList();
+    const sites = Array.isArray(res.sites) ? res.sites : [];
+    const unique = Array.from(new Set(sites));
+    siteOptions.value = unique
+      .filter((s) => s !== "")
+      .map((s) => ({
+        label: s,
+        value: s,
+      }));
   } catch {
-    domainOptions.value = [];
+    siteOptions.value = [];
   }
 }
 
@@ -287,19 +294,12 @@ async function loadDisplaySettings() {
   }
 }
 
-provide("domainFilter", domainFilter);
 provide("updateSiteTitle", updateTitle);
 
 onMounted(() => {
-  loadDomains();
+  loadSites();
   loadVersion();
   loadDisplaySettings();
-});
-
-watch(domainFilter, (value) => {
-  if (typeof window !== "undefined") {
-    window.localStorage.setItem(DOMAIN_STORAGE_KEY, value || "");
-  }
 });
 
 function isRouteActive(name: string) {

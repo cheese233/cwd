@@ -1,7 +1,7 @@
 <template>
   <div class="page">
     <div style="display: flex; align-items: center; gap: 20px">
-      <h2 class="page-title">访问统计</h2>
+      <h2 class="page-title">{{ t("analytics.title") }}</h2>
     </div>
     <div
       v-if="toastVisible"
@@ -13,63 +13,73 @@
 
     <div class="card">
       <div class="card-title-row">
-        <h3 class="card-title">整体概览</h3>
+        <h3 class="card-title">{{ t("analytics.overview") }}</h3>
       </div>
-      <div v-if="loading" class="page-hint">加载中...</div>
+      <div v-if="loading" class="page-hint">{{ t("common.loading") }}</div>
       <div v-else-if="error" class="page-error">{{ error }}</div>
       <div v-else>
         <div class="stats-grid">
           <div class="stats-item">
-            <div class="stats-label">全站总访问量</div>
+            <div class="stats-label">{{ t("analytics.totalPv") }}</div>
             <div class="stats-value"><CountTo :end-val="overview.totalPv" /></div>
           </div>
           <div class="stats-item">
-            <div class="stats-label">今日访问量</div>
+            <div class="stats-label">{{ t("analytics.todayPv") }}</div>
             <div class="stats-value">
               <CountTo :end-val="overview.todayPv" />
               <span
                 v-if="overview.yesterdayPv !== undefined"
                 class="trend"
                 :class="percentageChange >= 0 ? 'up' : 'down'"
-                :title="`对比昨日 ${percentageChange >= 0 ? '增加' : '减少'} ${Math.abs(percentageChange).toFixed(1)}%`"
+                :title="`对比昨日 ${percentageChange >= 0 ? '增加' : '减少'} ${Math.abs(
+                  percentageChange
+                ).toFixed(1)}%`"
               >
-                <span class="trend-arrow">{{ percentageChange >= 0 ? '↑' : '↓' }}</span>
+                <span class="trend-arrow">{{ percentageChange >= 0 ? "↑" : "↓" }}</span>
                 {{ Math.abs(percentageChange).toFixed(1) }}%
               </span>
             </div>
           </div>
           <div class="stats-item">
-            <div class="stats-label">本周访问量</div>
+            <div class="stats-label">{{ t("analytics.weekPv") }}</div>
             <div class="stats-value">
               <CountTo :end-val="overview.weekPv" />
               <span
                 v-if="overview.lastWeekPv !== undefined"
                 class="trend"
                 :class="weekPercentageChange >= 0 ? 'up' : 'down'"
-                :title="`对比上周 ${weekPercentageChange >= 0 ? '增加' : '减少'} ${Math.abs(weekPercentageChange).toFixed(1)}%`"
+                :title="`对比上周 ${
+                  weekPercentageChange >= 0 ? '增加' : '减少'
+                } ${Math.abs(weekPercentageChange).toFixed(1)}%`"
               >
-                <span class="trend-arrow">{{ weekPercentageChange >= 0 ? '↑' : '↓' }}</span>
+                <span class="trend-arrow">{{
+                  weekPercentageChange >= 0 ? "↑" : "↓"
+                }}</span>
                 {{ Math.abs(weekPercentageChange).toFixed(1) }}%
               </span>
             </div>
           </div>
           <div class="stats-item">
-            <div class="stats-label">本月访问量</div>
+            <div class="stats-label">{{ t("analytics.monthPv") }}</div>
             <div class="stats-value">
               <CountTo :end-val="overview.monthPv" />
               <span
                 v-if="overview.lastMonthPv !== undefined"
                 class="trend"
                 :class="monthPercentageChange >= 0 ? 'up' : 'down'"
-                :title="`对比上月 ${monthPercentageChange >= 0 ? '增加' : '减少'} ${Math.abs(monthPercentageChange).toFixed(1)}%`"
+                :title="`对比上月 ${
+                  monthPercentageChange >= 0 ? '增加' : '减少'
+                } ${Math.abs(monthPercentageChange).toFixed(1)}%`"
               >
-                <span class="trend-arrow">{{ monthPercentageChange >= 0 ? '↑' : '↓' }}</span>
+                <span class="trend-arrow">{{
+                  monthPercentageChange >= 0 ? "↑" : "↓"
+                }}</span>
                 {{ Math.abs(monthPercentageChange).toFixed(1) }}%
               </span>
             </div>
           </div>
           <div class="stats-item">
-            <div class="stats-label">有访问记录的页面数</div>
+            <div class="stats-label">{{ t("analytics.totalPages") }}</div>
             <div class="stats-value"><CountTo :end-val="overview.totalPages" /></div>
           </div>
         </div>
@@ -78,7 +88,7 @@
 
     <div class="card">
       <div class="card-title-row">
-        <h3 class="card-title">访问趋势</h3>
+        <h3 class="card-title">{{ t("analytics.trend") }}</h3>
         <div class="visit-tabs">
           <button
             class="visit-tab"
@@ -86,7 +96,7 @@
             type="button"
             @click="changeChartRange('7')"
           >
-            最近 7 天
+            {{ t("analytics.last7Days") }}
           </button>
           <button
             class="visit-tab"
@@ -94,11 +104,11 @@
             type="button"
             @click="changeChartRange('30')"
           >
-            最近 30 天
+            {{ t("analytics.last30Days") }}
           </button>
         </div>
       </div>
-      <div v-if="loading" class="page-hint">加载中...</div>
+      <div v-if="loading" class="page-hint">{{ t("common.loading") }}</div>
       <div v-else-if="error" class="page-error">{{ error }}</div>
       <div class="chart-wrapper">
         <div ref="chartEl" class="chart"></div>
@@ -107,7 +117,7 @@
 
     <div class="card">
       <div class="card-title-row">
-        <h3 class="card-title">页面访问明细</h3>
+        <h3 class="card-title">{{ t("analytics.pageDetail") }}</h3>
         <div class="visit-tabs">
           <button
             class="visit-tab"
@@ -115,7 +125,7 @@
             type="button"
             @click="changeVisitTab('pv')"
           >
-            按 PV 排序
+            {{ t("analytics.sort.pv") }}
           </button>
           <button
             class="visit-tab"
@@ -123,22 +133,28 @@
             type="button"
             @click="changeVisitTab('latest')"
           >
-            最新访问
+            {{ t("analytics.sort.latest") }}
           </button>
         </div>
       </div>
-      <div v-if="listLoading" class="page-hint">加载中...</div>
+      <div v-if="listLoading" class="page-hint">{{ t("common.loading") }}</div>
       <div v-else-if="error" class="page-error">{{ error }}</div>
-      <div v-else-if="items.length === 0" class="page-hint">暂无访问数据</div>
+      <div v-else-if="items.length === 0" class="page-hint">
+        {{ t("analytics.noData") }}
+      </div>
       <div v-else class="domain-table-wrapper">
         <div class="domain-table">
           <div class="domain-table-header">
-            <div class="domain-cell domain-cell-title">页面标题</div>
-            <div class="domain-cell domain-cell-pv">访问量</div>
-            <div class="domain-cell domain-cell-time">最后访问时间</div>
-            <div class="domain-cell domain-cell-url">页面地址</div>
+            <div class="domain-cell domain-cell-title">
+              {{ t("analytics.table.title") }}
+            </div>
+            <div class="domain-cell domain-cell-pv">{{ t("analytics.table.pv") }}</div>
+            <div class="domain-cell domain-cell-time">
+              {{ t("analytics.table.time") }}
+            </div>
+            <div class="domain-cell domain-cell-url">{{ t("analytics.table.url") }}</div>
           </div>
-          <div v-for="item in items" :key="item.postSlug" class="domain-table-row">
+          <div v-for="(item, index) in items" :key="index" class="domain-table-row">
             <div class="domain-cell domain-cell-title">
               {{ item.postTitle || item.postSlug }}
             </div>
@@ -150,12 +166,12 @@
             </div>
             <div class="domain-cell domain-cell-url">
               <a
-                v-if="item.postSlug"
-                :href="item.postSlug"
+                v-if="item.postUrl"
+                :href="item.postUrl"
                 target="_blank"
                 rel="noreferrer"
               >
-                {{ item.postSlug }}
+                {{ item.postUrl }}
               </a>
               <span v-else>-</span>
             </div>
@@ -166,22 +182,30 @@
 
     <div class="card">
       <div class="card-title-row">
-        <h3 class="card-title">点赞页面排行榜</h3>
+        <h3 class="card-title">{{ t("analytics.likeRank") }}</h3>
       </div>
-      <div v-if="loading" class="page-hint">加载中...</div>
+      <div v-if="loading" class="page-hint">{{ t("common.loading") }}</div>
       <div v-else-if="error" class="page-error">{{ error }}</div>
-      <div v-else-if="likeStatsItems.length === 0" class="page-hint">暂无点赞数据</div>
+      <div v-else-if="likeStatsItems.length === 0" class="page-hint">
+        {{ t("analytics.noLikeData") }}
+      </div>
       <div v-else class="domain-table-wrapper">
         <div class="domain-table">
           <div class="domain-table-header">
-            <div class="domain-cell domain-cell-rank">排名</div>
-            <div class="domain-cell domain-cell-title">页面标题</div>
-            <div class="domain-cell domain-cell-like">点赞数</div>
-            <div class="domain-cell domain-cell-url">页面地址</div>
+            <div class="domain-cell domain-cell-rank">
+              {{ t("analytics.table.rank") }}
+            </div>
+            <div class="domain-cell domain-cell-title">
+              {{ t("analytics.table.title") }}
+            </div>
+            <div class="domain-cell domain-cell-like">
+              {{ t("analytics.table.like") }}
+            </div>
+            <div class="domain-cell domain-cell-url">{{ t("analytics.table.url") }}</div>
           </div>
           <div
             v-for="(item, index) in likeStatsItems"
-            :key="item.pageSlug"
+            :key="index"
             class="domain-table-row"
           >
             <div class="domain-cell domain-cell-rank">
@@ -212,8 +236,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount, ref, nextTick, watch, inject, computed } from "vue";
-import type { Ref } from "vue";
+import { onMounted, onBeforeUnmount, ref, nextTick, watch, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import * as echarts from "echarts";
 import CountTo from "../../components/CountTo.vue";
 import {
@@ -224,6 +248,9 @@ import {
   fetchLikeStats,
   type LikeStatsItem,
 } from "../../api/admin";
+import { useSite } from "../../composables/useSite";
+
+const { t } = useI18n();
 
 const loading = ref(false);
 const listLoading = ref(false);
@@ -239,6 +266,8 @@ const overview = ref<VisitOverviewResponse>({
   lastMonthPv: 0,
   last30Days: [],
 });
+
+const { currentSiteId } = useSite();
 
 function calculateChange(current: number, previous: number) {
   if (previous === 0) {
@@ -259,31 +288,18 @@ const monthPercentageChange = computed(() => {
   return calculateChange(overview.value.monthPv, overview.value.lastMonthPv || 0);
 });
 
-const rawItems = ref<VisitPageItem[]>([]);
+const itemsByPv = ref<VisitPageItem[]>([]);
+const itemsByLatest = ref<VisitPageItem[]>([]);
 const items = computed<VisitPageItem[]>(() => {
-  const list = rawItems.value.slice();
-  list.sort((a, b) => {
-    const aLast = getLastVisitAtTs(a.lastVisitAt);
-    const bLast = getLastVisitAtTs(b.lastVisitAt);
-    if (visitTab.value === "latest") {
-      if (bLast !== aLast) {
-        return bLast - aLast;
-      }
-      return b.pv - a.pv;
-    }
-    if (b.pv !== a.pv) {
-      return b.pv - a.pv;
-    }
-    return bLast - aLast;
-  });
-  return list;
+  if (visitTab.value === "latest") {
+    return itemsByLatest.value;
+  }
+  return itemsByPv.value;
 });
 const visitTab = ref<"pv" | "latest">("pv");
 const visitTabStorageKey = "cwd-analytics-visit-tab";
 const chartRangeStorageKey = "cwd-analytics-visit-chart-range";
 
-const injectedDomainFilter = inject<Ref<string> | null>("domainFilter", null);
-const domainFilter = injectedDomainFilter ?? ref("");
 const last30Days = ref<{ date: string; total: number }[]>([]);
 const likeStatsItems = ref<LikeStatsItem[]>([]);
 const chartRange = ref<"7" | "30">("7");
@@ -353,11 +369,11 @@ function extractDomain(source: string | null | undefined): string | null {
   }
 }
 
-function getVisitOrderParam(): "pv" | "latest" | undefined {
+function getVisitOrderParam(): "pv" | "latest" {
   if (visitTab.value === "latest") {
     return "latest";
   }
-  return undefined;
+  return "pv";
 }
 
 function filterLikeStatsByDomain(list: LikeStatsItem[], domain: string | undefined): LikeStatsItem[] {
@@ -435,12 +451,12 @@ async function loadData() {
   listLoading.value = true;
   error.value = "";
   try {
-    const domain = domainFilter.value || undefined;
+    const domain = currentSiteId.value;
     const order = getVisitOrderParam();
     const [overviewRes, pagesRes, likeStatsRes] = await Promise.all([
       fetchVisitOverview(domain),
       fetchVisitPages(domain, order),
-      fetchLikeStats(),
+      fetchLikeStats(domain),
     ]);
     overview.value = {
       totalPv: overviewRes.totalPv,
@@ -456,9 +472,37 @@ async function loadData() {
         : [],
     };
     const likeItemsRaw = Array.isArray(likeStatsRes.items) ? likeStatsRes.items : [];
-    likeStatsItems.value = filterLikeStatsByDomain(likeItemsRaw, domain);
-    const pageItems = Array.isArray(pagesRes.items) ? pagesRes.items : [];
-    rawItems.value = pageItems;
+    likeStatsItems.value = likeItemsRaw;
+    const pageItemsByPv = Array.isArray(pagesRes.itemsByPv)
+      ? pagesRes.itemsByPv
+      : [];
+    const pageItemsByLatest = Array.isArray(pagesRes.itemsByLatest)
+      ? pagesRes.itemsByLatest
+      : [];
+    if (pageItemsByPv.length === 0 && pageItemsByLatest.length === 0) {
+      const baseItems = Array.isArray(pagesRes.items) ? pagesRes.items : [];
+      const sortedByPv = baseItems.slice().sort((a, b) => {
+        if (b.pv !== a.pv) {
+          return b.pv - a.pv;
+        }
+        const aLast = getLastVisitAtTs(a.lastVisitAt);
+        const bLast = getLastVisitAtTs(b.lastVisitAt);
+        return bLast - aLast;
+      });
+      const sortedByLatest = baseItems.slice().sort((a, b) => {
+        const aLast = getLastVisitAtTs(a.lastVisitAt);
+        const bLast = getLastVisitAtTs(b.lastVisitAt);
+        if (bLast !== aLast) {
+          return bLast - aLast;
+        }
+        return b.pv - a.pv;
+      });
+      itemsByPv.value = sortedByPv;
+      itemsByLatest.value = sortedByLatest;
+    } else {
+      itemsByPv.value = pageItemsByPv;
+      itemsByLatest.value = pageItemsByLatest;
+    }
     last30Days.value = Array.isArray(overviewRes.last30Days)
       ? overviewRes.last30Days
       : [];
@@ -572,7 +616,7 @@ onBeforeUnmount(() => {
   }
 });
 
-watch(domainFilter, () => {
+watch(currentSiteId, () => {
   loadData();
 });
 </script>

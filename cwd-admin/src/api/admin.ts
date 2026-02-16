@@ -13,6 +13,7 @@ export type CommentItem = {
 	email: string;
 	avatar: string;
 	postSlug: string;
+	postUrl: string | null;
 	url: string | null;
 	ipAddress: string | null;
 	contentText: string;
@@ -22,6 +23,7 @@ export type CommentItem = {
 	likes?: number;
 	ua?: string | null;
 	isAdmin?: boolean;
+	siteId?: string;
 };
 
 export type CommentListResponse = {
@@ -110,10 +112,12 @@ export type VisitPageItem = {
 
 export type VisitPagesResponse = {
 	items: VisitPageItem[];
+	itemsByPv?: VisitPageItem[];
+	itemsByLatest?: VisitPageItem[];
 };
 
-export type DomainListResponse = {
-	domains: string[];
+export type SiteListResponse = {
+	sites: string[];
 };
 
 export type LikeStatsItem = {
@@ -133,6 +137,8 @@ export type FeatureSettingsResponse = {
 	enableImageLightbox: boolean;
 	commentPlaceholder?: string;
 	visibleDomains?: string[];
+	adminLanguage?: string;
+	widgetLanguage?: string;
 };
 
 export type AdminDisplaySettingsResponse = {
@@ -150,11 +156,11 @@ export function logoutAdmin(): void {
 	localStorage.removeItem('cwd_admin_token');
 }
 
-export function fetchComments(page: number, domain?: string): Promise<CommentListResponse> {
+export function fetchComments(page: number, siteId?: string): Promise<CommentListResponse> {
 	const searchParams = new URLSearchParams();
 	searchParams.set('page', String(page));
-	if (domain) {
-		searchParams.set('domain', domain);
+	if (siteId && siteId !== 'default') {
+		searchParams.set('siteId', siteId);
 	}
 	return get<CommentListResponse>(`/admin/comments/list?${searchParams.toString()}`);
 }
@@ -172,6 +178,7 @@ export function updateComment(data: {
 	name: string;
 	email: string;
 	url?: string | null;
+	postUrl?: string | null;
 	postSlug?: string;
 	contentText: string;
 	status?: string;
@@ -182,6 +189,7 @@ export function updateComment(data: {
 		name: data.name,
 		email: data.email,
 		url: data.url ?? null,
+		postUrl: data.postUrl ?? null,
 		postSlug: data.postSlug,
 		content: data.contentText,
 		status: data.status,
@@ -273,8 +281,13 @@ export function importConfig(data: any[]): Promise<{ message: string }> {
 	return post<{ message: string }>('/admin/import/config', data);
 }
 
-export function exportStats(): Promise<any> {
-	return get<any>('/admin/export/stats');
+export function exportStats(siteId?: string): Promise<any> {
+	const searchParams = new URLSearchParams();
+	if (siteId && siteId !== 'default') {
+		searchParams.set('siteId', siteId);
+	}
+	const query = searchParams.toString();
+	return get<any>(query ? `/admin/export/stats?${query}` : '/admin/export/stats');
 }
 
 export function importStats(data: any): Promise<{ message: string }> {
@@ -289,30 +302,30 @@ export function importBackup(data: any): Promise<{ message: string }> {
 	return post<{ message: string }>('/admin/import/backup', data);
 }
 
-export function fetchCommentStats(domain?: string): Promise<CommentStatsResponse> {
+export function fetchCommentStats(siteId?: string): Promise<CommentStatsResponse> {
 	const searchParams = new URLSearchParams();
-	if (domain) {
-		searchParams.set('domain', domain);
+	if (siteId && siteId !== 'default') {
+		searchParams.set('siteId', siteId);
 	}
 	const query = searchParams.toString();
 	const url = query ? `/admin/stats/comments?${query}` : '/admin/stats/comments';
 	return get<CommentStatsResponse>(url);
 }
 
-export function fetchVisitOverview(domain?: string): Promise<VisitOverviewResponse> {
+export function fetchVisitOverview(siteId?: string): Promise<VisitOverviewResponse> {
 	const searchParams = new URLSearchParams();
-	if (domain) {
-		searchParams.set('domain', domain);
+	if (siteId && siteId !== 'default') {
+		searchParams.set('siteId', siteId);
 	}
 	const query = searchParams.toString();
 	const url = query ? `/admin/analytics/overview?${query}` : '/admin/analytics/overview';
 	return get<VisitOverviewResponse>(url);
 }
 
-export function fetchVisitPages(domain?: string, order?: 'pv' | 'latest'): Promise<VisitPagesResponse> {
+export function fetchVisitPages(siteId?: string, order?: 'pv' | 'latest'): Promise<VisitPagesResponse> {
 	const searchParams = new URLSearchParams();
-	if (domain) {
-		searchParams.set('domain', domain);
+	if (siteId && siteId !== 'default') {
+		searchParams.set('siteId', siteId);
 	}
 	if (order) {
 		searchParams.set('order', order);
@@ -322,19 +335,25 @@ export function fetchVisitPages(domain?: string, order?: 'pv' | 'latest'): Promi
 	return get<VisitPagesResponse>(url);
 }
 
-export function fetchDomainList(): Promise<DomainListResponse> {
-	return get<DomainListResponse>('/admin/stats/domains');
+export function fetchSiteList(): Promise<SiteListResponse> {
+	return get<SiteListResponse>('/admin/stats/sites');
 }
 
-export function fetchLikeStats(): Promise<LikeStatsResponse> {
-	return get<LikeStatsResponse>('/admin/likes/stats');
+export function fetchLikeStats(siteId?: string): Promise<LikeStatsResponse> {
+	const searchParams = new URLSearchParams();
+	if (siteId && siteId !== 'default') {
+		searchParams.set('siteId', siteId);
+	}
+	const query = searchParams.toString();
+	const url = query ? `/admin/likes/stats?${query}` : '/admin/likes/stats';
+	return get<LikeStatsResponse>(url);
 }
 
 export function fetchFeatureSettings(): Promise<FeatureSettingsResponse> {
 	return get<FeatureSettingsResponse>('/admin/settings/features');
 }
 
-export function saveFeatureSettings(data: { enableCommentLike?: boolean; enableArticleLike?: boolean; enableImageLightbox?: boolean; commentPlaceholder?: string; visibleDomains?: string[] }): Promise<{ message: string }> {
+export function saveFeatureSettings(data: { enableCommentLike?: boolean; enableArticleLike?: boolean; enableImageLightbox?: boolean; commentPlaceholder?: string; visibleDomains?: string[]; adminLanguage?: string; widgetLanguage?: string }): Promise<{ message: string }> {
 	return put<{ message: string }>('/admin/settings/features', data);
 }
 
@@ -368,4 +387,46 @@ export function setupTelegramWebhook(): Promise<{ message: string; webhookUrl: s
 
 export function sendTelegramTestMessage(): Promise<{ message: string }> {
 	return post<{ message: string }>('/admin/settings/telegram/test', {});
+}
+
+export type S3SettingsResponse = {
+	endpoint: string;
+	accessKeyId: string;
+	secretAccessKey: string;
+	bucket: string;
+	region: string;
+};
+
+export function fetchS3Settings(): Promise<S3SettingsResponse> {
+	return get<S3SettingsResponse>('/admin/settings/s3');
+}
+
+export function saveS3Settings(data: S3SettingsResponse): Promise<{ message: string }> {
+	return put<{ message: string }>('/admin/settings/s3', data);
+}
+
+export function triggerS3Backup(): Promise<{ message: string; file: string }> {
+	return post<{ message: string; file: string }>('/admin/backup/s3', {});
+}
+
+export type S3BackupItem = {
+	key: string;
+	size: number;
+	lastModified: string;
+};
+
+export function fetchS3BackupList(): Promise<{ files: S3BackupItem[] }> {
+	return get<{ files: S3BackupItem[] }>('/admin/backup/s3/list');
+}
+
+export function deleteS3Backup(key: string): Promise<{ message: string }> {
+	return del<{ message: string }>(`/admin/backup/s3?key=${encodeURIComponent(key)}`);
+}
+
+export function downloadS3BackupUrl(key: string): string {
+	const rawEnvApiBaseUrl = (import.meta.env.VITE_API_BASE_URL || '').trim();
+	const stored = (localStorage.getItem('cwd_admin_api_base_url') || '').trim();
+	const source = stored || rawEnvApiBaseUrl;
+	const apiBaseUrl = source.replace(/\/+$/, '');
+	return `${apiBaseUrl}/admin/backup/s3/download?key=${encodeURIComponent(key)}`;
 }

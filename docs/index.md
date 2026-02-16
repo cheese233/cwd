@@ -14,6 +14,9 @@ hero:
     - theme: alt
       text: Github
       link: https://github.com/anghunk/cwd
+    - theme: alt
+      text: 常见问题
+      link: /common-problems
 
 features:
   - icon: ⚡️
@@ -21,7 +24,7 @@ features:
     details: 基于 Cloudflare 全球 300+ 节点网络，毫秒级响应，自动扩缩容，无需管理服务器
   - icon: 💬
     title: 完善评论体系
-    details: 支持嵌套回复、分页加载、Markdown 渲染、富文本支持与访客信息记忆
+    details: 支持多站点管理，支持嵌套回复、分页加载、Markdown 渲染、富文本支持与访客信息记忆
   - icon: 🔔
     title: 智能邮件通知
     details: 新评论、回复提醒实时推送，支持自定义邮件模板，兼容各大邮箱服务商
@@ -42,3 +45,13 @@ features:
     details: 提供完整 REST API 与 SDK，一行代码嵌入，适配 Vue、React 等任意框架
 ---
 
+<script setup>
+import FooterDoc from './.vitepress/components/footerDoc.vue';
+</script>
+
+> [!TIP] 十分抱歉！
+> 由于开发团队目前只有一个人，在更新功能后文档可能会滞后。如果遇到问题，请先查看文档是否有更新。  
+> 如果文档没有更新或者文档描述与实际有误，请在 GitHub 仓库的 Issues 中及时反馈。  
+> 如果是更改比较重大的功能，我会在 [常见问题] 中更新。
+
+<FooterDoc />

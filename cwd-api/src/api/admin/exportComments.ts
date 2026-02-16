@@ -3,9 +3,8 @@ import { Bindings } from '../../bindings';
 
 export const exportComments = async (c: Context<{ Bindings: Bindings }>) => {
 	try {
-		const { results } = await c.env.CWD_DB.prepare(
-			'SELECT * FROM Comment ORDER BY priority DESC, created DESC'
-		).all();
+		const query = 'SELECT * FROM Comment ORDER BY priority DESC, created DESC';
+		const { results } = await c.env.CWD_DB.prepare(query).all();
 
 		return c.json(results);
 	} catch (e: any) {

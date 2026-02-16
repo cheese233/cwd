@@ -10,15 +10,15 @@ export const listComments = async (c: Context<{ Bindings: Bindings }>) => {
 	const limit = 10;
 	const offset = (page - 1) * limit;
 
-	const rawDomain = c.req.query('domain') || '';
-	const domain = rawDomain.trim();
+	const rawSiteId = c.req.query('siteId'); // Changed from site_id to siteId to be consistent
+	const siteId = rawSiteId && rawSiteId !== 'default' ? rawSiteId : null;
 
 	let whereSql = '';
 	const params: (string | number)[] = [];
-	if (domain) {
-		const pattern = `%://${domain}/%`;
-		whereSql = 'WHERE post_slug LIKE ? OR url LIKE ?';
-		params.push(pattern, pattern);
+
+	if (siteId) {
+		whereSql = 'WHERE site_id = ?';
+		params.push(siteId);
 	}
 
 	const totalCount = await c.env.CWD_DB.prepare(
@@ -54,6 +54,7 @@ export const listComments = async (c: Context<{ Bindings: Bindings }>) => {
 			name: row.name,
 			email: row.email,
 			postSlug: row.post_slug,
+			postUrl: row.post_url,
 			url: row.url,
 			ipAddress: row.ip_address,
 			contentText: row.content_text,
@@ -66,7 +67,8 @@ export const listComments = async (c: Context<{ Bindings: Bindings }>) => {
 					: 0,
 			ua: row.ua,
 			avatar: await getCravatar(row.email, row.name, avatarPrefix || undefined),
-			isAdmin: adminEmail && row.email === adminEmail
+			isAdmin: adminEmail && row.email === adminEmail,
+			siteId: row.site_id
 		}))
 	);
 

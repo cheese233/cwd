@@ -9,6 +9,7 @@ export const getComments = async (c: Context<{ Bindings: Bindings }>) => {
   const limit = Math.min(parseInt(c.req.query('limit') || '20'), 50)
   const nested = c.req.query('nested') !== 'false'
   const avatar_prefix = c.req.query('avatar_prefix')
+  const siteId = c.req.query('site_id')
   const offset = (page - 1) * limit
 
   if (!postSlug) return c.json({ message: "post_slug is required" }, 400)
@@ -29,32 +30,59 @@ export const getComments = async (c: Context<{ Bindings: Bindings }>) => {
       slugList = Array.from(new Set([withSlash, withoutSlash]))
     }
   } catch {
-    slugList = [postSlug]
+    const path = postSlug.split('?')[0].split('#')[0]
+    if (path === '/' || path === '') {
+      slugList = ['/']
+    } else {
+      const hasTrailingSlash = path.endsWith('/')
+      const withSlash = hasTrailingSlash ? path : path + '/'
+      const withoutSlash = hasTrailingSlash ? path.slice(0, -1) : path
+      slugList = Array.from(new Set([withSlash, withoutSlash]))
+    }
   }
 
   try {
-    let query = `
-      SELECT id, name, email, url, content_text as contentText, 
+    const equalSlugs = Array.from(new Set(slugList))
+    const likePatternsSet = new Set<string>()
+    for (const s of equalSlugs) {
+      likePatternsSet.add(`${s}#%`)
+      likePatternsSet.add(`${s}?%`)
+    }
+    const likePatterns = Array.from(likePatternsSet)
+    const whereParts: string[] = []
+    if (equalSlugs.length === 1) {
+      whereParts.push('post_slug = ?')
+    } else if (equalSlugs.length > 1) {
+      const placeholders = equalSlugs.map(() => '?').join(', ')
+      whereParts.push(`post_slug IN (${placeholders})`)
+    }
+    for (let i = 0; i < likePatterns.length; i += 1) {
+      whereParts.push('post_slug LIKE ?')
+    }
+    const whereClause =
+      whereParts.length > 0
+        ? `status = "approved" AND (${whereParts.join(' OR ')})`
+        : 'status = "approved"'
+    
+    let finalWhereClause = whereClause
+    const bindParams: unknown[] = [...equalSlugs, ...likePatterns]
+
+    if (siteId) {
+      finalWhereClause += ' AND site_id = ?'
+      bindParams.push(siteId)
+    }
+
+    const query = `
+      SELECT id, name, email, url, content_text as contentText,
              content_html as contentHtml, created, parent_id as parentId,
-             post_slug as postSlug, priority, COALESCE(likes, 0) as likes
-      FROM Comment 
-      WHERE status = "approved" AND post_slug = ?
+             post_slug as postSlug, post_url as postUrl, priority, COALESCE(likes, 0) as likes
+      FROM Comment
+      WHERE ${finalWhereClause}
       ORDER BY priority DESC, created DESC
     `
-    if (slugList.length > 1) {
-      const placeholders = slugList.map(() => '?').join(', ')
-      query = `
-        SELECT id, name, email, url, content_text as contentText, 
-               content_html as contentHtml, created, parent_id as parentId,
-               post_slug as postSlug, priority, COALESCE(likes, 0) as likes
-        FROM Comment 
-        WHERE status = "approved" AND post_slug IN (${placeholders})
-        ORDER BY priority DESC, created DESC
-      `
-    }
     
     const [commentsResult, adminEmailRows] = await Promise.all([
-      c.env.CWD_DB.prepare(query).bind(...slugList).all(),
+      c.env.CWD_DB.prepare(query).bind(...bindParams).all(),
       c.env.CWD_DB.prepare('SELECT key, value FROM Settings WHERE key IN (?, ?)')
         .bind('comment_admin_email', 'admin_notify_email')
         .all<{ key: string; value: string }>()

@@ -26,14 +26,21 @@ CWD 评论组件采用 **Shadow DOM** 技术构建，基于独立根节点渲染
 
 <script>
 	const comments = new CWDComments({
-		el: '#comments',
-		apiBaseUrl: 'https://your-api.example.com', // 换成你的 API 地址
+		el: '#comments', // 必填
+		apiBaseUrl: 'https://your-api.example.com', // 必填，换成你的 API 地址
+		postSlug: 'post-unique-id-001', // 选填，自定义评论标识符，用于跨路径/多语言聚合
+		siteId: 'blog', // 选填，推荐配置，用于多站点数据隔离
+		lang: 'auto', // 选填，评论组件语言，详见下方说明
 	});
 	comments.mount();
 </script>
 ```
 
-**cdn 链接（推荐使用）**
+如果你的站点是多语言结构（例如 `/en/post/1` 和 `/zh/post/1`），或者是不同路径需要共享同一份评论数据，可以通过 `postSlug` 参数手动指定唯一的标识符；
+
+如果未指定 `postSlug`，组件将默认使用 `window.location.pathname` 作为标识符。
+
+**cdn 链接（推荐使用）：请单独修改版本号** 
 
 ```
 https://unpkg.com/cwd-widget@0.0.x/dist/cwd.js
@@ -47,13 +54,34 @@ https://cwd.js.org/cwd.js
 
 ### 参数说明
 
-| 参数           | 类型                    | 必填 | 默认值    | 说明                                     |
-| -------------- | ----------------------- | ---- | --------- | ---------------------------------------- |
-| `el`           | `string \| HTMLElement` | 是   | -         | 挂载元素选择器或 DOM 元素                |
-| `apiBaseUrl`   | `string`                | 是   | -         | API 基础地址                             |
-| `theme`        | `'light' \| 'dark'`     | 否   | `'light'` | 主题模式                                 |
-| `pageSize`     | `number`                | 否   | `20`      | 每页显示评论数                           |
-| `customCssUrl` | `string`                | 否   | -         | 自定义样式表 URL，追加到 Shadow DOM 底部 |
+| 参数           | 类型                    | 必填 | 默认值                     | 说明                                     |
+| -------------- | ----------------------- | ---- | -------------------------- | ---------------------------------------- |
+| `el`           | `string \| HTMLElement` | 是   | -                          | 挂载元素选择器或 DOM 元素                |
+| `apiBaseUrl`   | `string`                | 是   | -                          | API 基础地址                             |
+| `siteId`       | `string`                | 否   | `''`                       | 站点 ID，用于多站点数据隔离，推荐配置    |
+| `postSlug`     | `string`                | 否   | `window.location.pathname` | 自定义评论标识符，用于跨路径/多语言聚合  |
+| `lang`         | `string`                | 否   | `auto`                     | 评论组件语言代码，支持 `zh-CN`、`en-US`、`fr` 等，`auto` 表示自动根据浏览器语言选择 |
+| `theme`        | `'light' \| 'dark'`     | 否   | `'light'`                  | 主题模式                                 |
+| `pageSize`     | `number`                | 否   | `20`                       | 每页显示评论数                           |
+| `customCssUrl` | `string`                | 否   | -                          | 自定义样式表 URL，追加到 Shadow DOM 底部 |
+
+### 多语言配置说明
+
+评论组件语言的优先级如下：
+
+1. 前端实例化时传入的 `lang` 参数（最高优先级）
+2. 后端在「功能设置」中配置的 `widgetLanguage`（通过 `/admin/settings/features` 接口下发）
+3. 浏览器语言自动检测（当以上两项都为空或为 `auto` 时生效）
+
+推荐做法：
+
+- 后端在管理后台中设置一个全局默认语言（`widgetLanguage`），例如 `zh-CN`
+- 不同语言站点如有特殊需求，再在前端实例化时通过 `lang` 明确指定
+
+> [!note] 目前支持的语言有：
+> `zh-CN` `en-US` `zh-TW` `es` `pt` `fr` `de` `ja` `ko` `ru` `it` `nl` `ar` `hi` `id`
+
+如需适配其他语言，请联系我们，我们会在后续版本中添加对其他语言的支持，或者提交 pr。
 
 头像前缀、博主邮箱和标识等信息由后端接口 `/api/config/comments` 提供，无需在前端进行配置。
 
@@ -79,6 +107,9 @@ https://cwd.js.org/cwd.js
 ```javascript
 // 动态切换主题
 comments.updateConfig({ theme: 'dark' });
+
+// 动态修改评论标识符（适用于单页应用路由切换）
+comments.updateConfig({ postSlug: '/new-post-slug' });
 
 // 配置自定义样式（会以 <link> 形式注入到 Shadow DOM 底部）
 comments.updateConfig({
@@ -134,48 +165,77 @@ comments.updateConfig({
 </script>
 ```
 
-### Vue
+### Vue3
 
-在 Vue 单文件组件里封装。
-
-`CommentsWidget.vue`:
+安装 `npm i cwd-widget`
 
 ```html
-<template>
-	<div ref="comments"></div>
-</template>
+<div id="comments"></div>
+```
 
-<script setup>
-	import { onMounted, onBeforeUnmount, ref } from 'vue';
+```js
+import CWDComments from "cwd-widget";
 
-	const comments = ref(null);
-	let instance = null;
-
-	onMounted(async () => {
-		if (!window.CWDComments) {
-			await loadScript('https://unpkg.com/cwd-widget@0.0.x/dist/cwd.js');
-		}
-
-		instance = new window.CWDComments({
-			el: comments.value,
-			apiBaseUrl: 'https://your-api.example.com', // 换成你的 API 地址
-		});
-		instance.mount();
+onMounted(() => {
+	// 初始化评论组件
+	const comments = new CWDComments({
+		el: '#comments',
+		apiBaseUrl: 'https://your-api.example.com',
 	});
+	comments.mount();
+});
+```
 
-	onBeforeUnmount(() => {
-		instance = null;
+### Vue2
+
+安装 `npm i cwd-widget`
+
+```html
+<div id="comments"></div>
+```
+
+```js
+import CWDComments from "cwd-widget";
+
+// 放在 mounted 钩子中初始化评论组件
+mounted() {
+	const comments = new CWDComments({
+		el: "#comments",
+		apiBaseUrl: "https://your-api.example.com",
 	});
+	comments.mount();
+},
+```
 
-	function loadScript(src) {
-		return new Promise((resolve, reject) => {
-			const script = document.createElement('script');
-			script.src = src;
-			script.async = true;
-			script.onload = () => resolve();
-			script.onerror = (e) => reject(e);
-			document.head.appendChild(script);
-		});
-	}
-</script>
+### React
+
+安装 `npm i cwd-widget`
+
+```js
+import { useEffect, useRef } from "react";
+import CWDComments, { CWDCommentsConfig } from "cwd-widget";
+
+function Comments() {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const config: CWDCommentsConfig = {
+      el: containerRef.current,
+      apiBaseUrl: "https://your-api.example.com",
+    };
+
+    const comments = new CWDComments(config);
+    comments.mount();
+
+    return () => {
+      comments.unmount();
+    };
+  }, []);
+
+  return <div id="comments" ref={containerRef} />;
+}
+
+export default Comments;
 ```

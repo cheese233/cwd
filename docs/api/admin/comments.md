@@ -25,12 +25,12 @@ GET /admin/comments/list
 | 名称     | 位置  | 类型    | 必填 | 说明                                       |
 | -------- | ----- | ------- | ---- | ------------------------------------------ |
 | `page`   | query | integer | 否   | 页码，默认 `1`                             |
-| `domain` | query | string  | 否   | 按域名筛选评论，传入域名，如 `example.com` |
+| `siteId` | query | string  | 否   | 按站点 ID 筛选评论，如 `blog`、`docs`     |
 
 说明：
 
 - 当前实现中每页固定大小为 `10`，暂不支持 `pageSize` 或状态过滤；
-- 当提供 `domain` 参数时，会匹配该域名下的评论，例如 `https://example.com/...`、`http://example.com/...`。
+- 当提供 `siteId` 参数且不为 `default` 时，仅返回该站点下的评论。
 
 **成功响应**
 
@@ -44,7 +44,8 @@ GET /admin/comments/list
 			"created": 1736762400000,
 			"name": "张三",
 			"email": "zhangsan@example.com",
-			"postSlug": "https://your-blog.example.com/blog/hello-world",
+			"postSlug": "/blog/hello-world",
+			"postUrl": "https://your-blog.example.com/blog/hello-world",
 			"url": "https://zhangsan.me",
 			"ipAddress": "127.0.0.1",
 			"contentText": "很棒的文章！",
@@ -62,6 +63,25 @@ GET /admin/comments/list
 	}
 }
 ```
+
+返回字段说明：
+
+| 字段名      | 类型   | 说明                       |
+| ----------- | ------ | -------------------------- |
+| `id`        | number | 评论 ID                    |
+| `created`   | number | 创建时间戳                 |
+| `name`      | string | 评论者昵称                 |
+| `email`     | string | 评论者邮箱                 |
+| `postSlug`  | string | 文章 slug                  |
+| `postUrl`   | string | null) | 文章完整 URL             |
+| `url`       | string | null) | 评论者个人主页地址      |
+| `ipAddress` | string | 评论者 IP 地址             |
+| `contentText` | string | 评论内容（纯文本）         |
+| `contentHtml` | string | 评论内容（渲染后的 HTML）   |
+| `status`    | string | 评论状态                   |
+| `priority`  | number | 置顶权重                   |
+| `ua`        | string | 用户代理                   |
+| `avatar`    | string | 头像 URL（Gravatar）       |
 
 **鉴权错误**
 
@@ -156,7 +176,8 @@ PUT /admin/comments/update
   "name": "张三",
   "email": "zhangsan@example.com",
   "url": "https://zhangsan.me",
-  "postSlug": "https://example.com/blog/hello-world",
+  "postSlug": "/blog/hello-world",
+  "postUrl": "https://example.com/blog/hello-world",
   "contentText": "更新后的评论内容",
   "status": "approved",
   "priority": 2
@@ -171,10 +192,12 @@ PUT /admin/comments/update
 | `name`      | string | 是   | 评论者昵称                             |
 | `email`     | string | 是   | 评论者邮箱                             |
 | `url`       | string | 否   | 评论者个人主页或站点地址                 |
-| `postSlug`  | string | 否   | 评论地址（文章 URL），不传则保持原值   |
-| `contentText` | string | 是   | 评论内容（纯文本）                     |
-`| `status`    | string | 否   | 评论状态，可选 `approved`、`pending`、`rejected` |
-| `priority`  | number | 否   | 置顶权重，默认为 1，数值越大越靠前   |
+| `postSlug`  | string | 否   | 文章 slug，不传则保持原值，支持 `postSlug` 或 `post_slug` |
+| `postUrl`   | string | 否   | 文章完整 URL，不传则保持原值，支持 `postUrl` 或 `post_url` |
+| `content`   | string | 是*  | 评论内容（Markdown 或纯文本），与 `contentText` 二选一 |
+| `contentText` | string | 是*  | 评论内容（纯文本），与 `content` 二选一 |
+| `status`    | string | 否   | 评论状态，可选 `approved`、`pending`、`rejected` |
+| `priority`  | number | 否   | 置顶权重，默认为 1，数值越大越靠前，必须 >= 1 |
 
 **置顶权重说明**：
 

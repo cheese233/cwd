@@ -24,7 +24,7 @@ GET /admin/analytics/overview
 
 | 名称     | 位置  | 类型   | 必填 | 说明                                       |
 | -------- | ----- | ------ | ---- | ------------------------------------------ |
-| `domain` | query | string | 否   | 按域名筛选访问数据，传入域名，如 `example.com` |
+| `siteId` | query | string | 否   | 按站点 ID 筛选访问数据，如 `blog`、`docs` |
 
 **成功响应**
 
@@ -102,7 +102,7 @@ GET /admin/analytics/pages
 
 | 名称     | 位置  | 类型   | 必填 | 说明                                       |
 | -------- | ----- | ------ | ---- | ------------------------------------------ |
-| `domain` | query | string | 否   | 按域名筛选访问数据，传入域名，如 `example.com` |
+| `siteId` | query | string | 否   | 按站点 ID 筛选访问数据，如 `blog`、`docs` |
 | `order`  | query | string | 否   | 排序方式，`pv`（按访问量排序，默认）或 `latest`（最新访问） |
 
 说明：
@@ -124,13 +124,24 @@ GET /admin/analytics/pages
       "postUrl": "https://example.com/blog/hello-world",
       "pv": 100,
       "lastVisitAt": 1737593600000
-    },
+    }
+  ],
+  "itemsByPv": [
     {
-      "postSlug": "https://example.com/about",
-      "postTitle": "关于我",
-      "postUrl": "https://example.com/about",
-      "pv": 50,
-      "lastVisitAt": 1737593500000
+      "postSlug": "https://example.com/blog/hello-world",
+      "postTitle": "Hello World",
+      "postUrl": "https://example.com/blog/hello-world",
+      "pv": 100,
+      "lastVisitAt": 1737593600000
+    }
+  ],
+  "itemsByLatest": [
+    {
+      "postSlug": "https://example.com/blog/hello-world",
+      "postTitle": "Hello World",
+      "postUrl": "https://example.com/blog/hello-world",
+      "pv": 100,
+      "lastVisitAt": 1737593600000
     }
   ]
 }
@@ -138,13 +149,16 @@ GET /admin/analytics/pages
 
 字段说明：
 
-| 字段名        | 类型   | 说明                       |
-| ------------- | ------ | -------------------------- |
-| `postSlug`    | string | 文章唯一标识符            |
-| `postTitle`   | string \| null | 文章标题           |
-| `postUrl`     | string \| null | 文章 URL          |
-| `pv`          | number | 访问量（PV）              |
-| `lastVisitAt` | number \| null | 最后访问时间戳（毫秒） |
+| 字段名              | 类型   | 说明                                      |
+| ------------------- | ------ | ----------------------------------------- |
+| `items`             | Array  | 根据 `order` 参数返回的主列表            |
+| `itemsByPv`         | Array  | 按 `order=pv` 规则排序后的前 20 条数据   |
+| `itemsByLatest`     | Array  | 按 `order=latest` 规则排序后的前 20 条数据 |
+| `postSlug`          | string | 文章唯一标识符                           |
+| `postTitle`         | string \| null | 文章标题                    |
+| `postUrl`           | string \| null | 文章 URL                   |
+| `pv`                | number | 访问量（PV）                             |
+| `lastVisitAt`       | number \| null | 最后访问时间戳（毫秒）      |
 
 **错误响应**
 

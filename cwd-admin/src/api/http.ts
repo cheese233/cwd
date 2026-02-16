@@ -1,6 +1,6 @@
 const rawEnvApiBaseUrl = (import.meta.env.VITE_API_BASE_URL || '').trim();
 
-function getApiBaseUrl(): string {
+export function getApiBaseUrl(): string {
 	const stored = (localStorage.getItem('cwd_admin_api_base_url') || '').trim();
 	const source = stored || rawEnvApiBaseUrl;
 	const apiBaseUrl = source.replace(/\/+$/, '');

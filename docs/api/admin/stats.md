@@ -1,6 +1,6 @@
 # 统计数据
 
-统计数据接口用于获取评论统计、域名列表等数据看板相关信息。
+统计数据接口用于获取评论统计、站点列表等数据看板相关信息。
 
 所有接口都需要在请求头中携带 Bearer Token。
 
@@ -14,11 +14,21 @@ Authorization: Bearer <token>
 GET /admin/stats/comments
 ```
 
-用于管理后台「数据看板」展示评论整体统计、按域名统计以及最近 30 天评论趋势。
+用于管理后台「数据看板」展示评论整体统计、按站点统计以及最近 30 天评论趋势。
 
 - 方法：`GET`
 - 路径：`/admin/stats/comments`
 - 鉴权：需要（Bearer Token）
+
+**查询参数**
+
+| 名称     | 位置  | 类型   | 必填 | 说明                            |
+| -------- | ----- | ------ | ---- | ------------------------------- |
+| `siteId` | query | string | 否   | 按站点 ID 筛选评论数据，如 `blog`、`docs` |
+
+说明：
+
+- 当提供 `siteId` 参数且不为 `default` 时，仅返回该站点下的评论统计数据
 
 **成功响应**
 
@@ -70,12 +80,12 @@ GET /admin/stats/comments
 | `summary.approved`   | number              | 已通过评论数                          |
 | `summary.pending`    | number              | 待审核评论数                          |
 | `summary.rejected`   | number              | 已拒绝评论数                          |
-| `domains`            | Array\<DomainStat\> | 按域名聚合的评论统计列表              |
-| `domains[].domain`   | string              | 解析后的域名（如 `example.com`）      |
-| `domains[].total`    | number              | 该域名下评论总数                      |
-| `domains[].approved` | number              | 该域名下已通过评论数                  |
-| `domains[].pending`  | number              | 该域名下待审核评论数                  |
-| `domains[].rejected` | number              | 该域名下已拒绝评论数                  |
+| `domains`            | Array\<DomainStat\> | 按站点聚合的评论统计列表              |
+| `domains[].domain`   | string              | 站点 ID（如 `blog`、`docs` 或 `default`） |
+| `domains[].total`    | number              | 该站点下评论总数                      |
+| `domains[].approved` | number              | 该站点下已通过评论数                  |
+| `domains[].pending`  | number              | 该站点下待审核评论数                  |
+| `domains[].rejected` | number              | 该站点下已拒绝评论数                  |
 | `last7Days`          | Array\<DailyStat\>  | 最近 30 天的每日评论数（按自然日聚合） |
 | `last7Days[].date`   | string (YYYY-MM-DD) | 日期，UTC 时间格式化后的自然日        |
 | `last7Days[].total`  | number              | 当日评论总数                          |
@@ -90,54 +100,7 @@ GET /admin/stats/comments
 }
 ```
 
-## 1.2 获取域名列表
-
-```
-GET /admin/stats/domains
-```
-
-用于管理后台获取所有已产生评论或访问记录的域名列表，用于域名筛选下拉框等场景。
-
-- 方法：`GET`
-- 路径：`/admin/stats/domains`
-- 鉴权：需要（Bearer Token）
-
-**成功响应**
-
-- 状态码：`200`
-
-```json
-{
-  "domains": [
-    "blog.example.com",
-    "example.com",
-    "www.example.com"
-  ]
-}
-```
-
-字段说明：
-
-| 字段名     | 类型            | 说明                   |
-| ---------- | --------------- | ---------------------- |
-| `domains`  | Array\<string\> | 域名列表，按字母排序 |
-
-说明：
-
-- 域名从评论数据和访问统计数据中提取
-- 域名自动去重并按字母顺序排序
-
-**错误响应**
-
-- 状态码：`500`
-
-```json
-{
-  "message": "获取域名列表失败"
-}
-```
-
-## 1.3 获取点赞统计数据（点赞排行榜）
+## 1.2 获取点赞统计数据（点赞排行榜）
 
 ```
 GET /admin/likes/stats
@@ -149,7 +112,16 @@ GET /admin/likes/stats
 - 路径：`/admin/likes/stats`
 - 鉴权：需要（Bearer Token）
 
-当前实现不接收查询参数，默认返回点赞数最多的前 50 条记录。
+**查询参数**
+
+| 名称     | 位置  | 类型   | 必填 | 说明                            |
+| -------- | ----- | ------ | ---- | ------------------------------- |
+| `siteId` | query | string | 否   | 按站点 ID 筛选点赞数据，如 `blog`、`docs` |
+
+说明：
+
+- 当提供 `siteId` 参数且不为 `default` 时，仅返回该站点下的点赞统计数据
+- 默认返回点赞数最多的前 50 条记录
 
 **成功响应**
 

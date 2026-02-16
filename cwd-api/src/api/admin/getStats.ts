@@ -12,47 +12,20 @@ type DomainCounts = StatusCounts & {
 	domain: string;
 };
 
-function extractDomain(source: string | null | undefined): string | null {
-	if (!source) {
-		return null;
-	}
-	const value = source.trim();
-	if (!value) {
-		return null;
-	}
-	if (!/^https?:\/\//i.test(value)) {
-		return null;
-	}
-	try {
-		const url = new URL(value);
-		return url.hostname.toLowerCase();
-	} catch {
-		return null;
-	}
-}
-
 export const getStats = async (c: Context<{ Bindings: Bindings }>) => {
 	try {
-		const rawDomain = c.req.query('domain') || '';
-		const domainFilter = rawDomain.trim().toLowerCase();
+		const rawSiteId = c.req.query('siteId');
+		const siteId = rawSiteId && rawSiteId !== 'default' ? rawSiteId : null;
 
 		const { results } = await c.env.CWD_DB.prepare(
-			'SELECT created, post_slug, url, status FROM Comment'
+			'SELECT created, status, site_id FROM Comment'
 		).all<{
 			created: number;
-			post_slug: string;
-			url: string | null;
 			status: string;
+			site_id: string | null;
 		}>();
 
-		const summaryAll: StatusCounts = {
-			total: 0,
-			approved: 0,
-			pending: 0,
-			rejected: 0
-		};
-
-		const summaryFiltered: StatusCounts = {
+		const summary: StatusCounts = {
 			total: 0,
 			approved: 0,
 			pending: 0,
@@ -60,18 +33,15 @@ export const getStats = async (c: Context<{ Bindings: Bindings }>) => {
 		};
 
 		const domainMap = new Map<string, StatusCounts>();
-
-		const dailyMapAll = new Map<string, number>();
-		const dailyMapFiltered = new Map<string, number>();
+		const dailyMap = new Map<string, number>();
 
 		const now = Date.now();
 		const thirtyDaysAgo = now - 29 * 24 * 60 * 60 * 1000;
 
 		for (const row of results) {
-			const domain =
-				extractDomain(row.post_slug) || extractDomain(row.url) || 'unknown';
+			const domainKey = row.site_id && row.site_id.trim() ? row.site_id.trim() : 'default';
 
-			let counts = domainMap.get(domain);
+			let counts = domainMap.get(domainKey);
 			if (!counts) {
 				counts = {
 					total: 0,
@@ -79,7 +49,7 @@ export const getStats = async (c: Context<{ Bindings: Bindings }>) => {
 					pending: 0,
 					rejected: 0
 				};
-				domainMap.set(domain, counts);
+				domainMap.set(domainKey, counts);
 			}
 			counts.total += 1;
 			if (row.status === 'approved') {
@@ -89,27 +59,23 @@ export const getStats = async (c: Context<{ Bindings: Bindings }>) => {
 			} else if (row.status === 'rejected') {
 				counts.rejected += 1;
 			}
+		}
 
-			summaryAll.total += 1;
+		const rowsForSummary = siteId
+			? results.filter((row) => {
+					const key = row.site_id && row.site_id.trim() ? row.site_id.trim() : 'default';
+					return key === siteId;
+			  })
+			: results;
+
+		for (const row of rowsForSummary) {
+			summary.total += 1;
 			if (row.status === 'approved') {
-				summaryAll.approved += 1;
+				summary.approved += 1;
 			} else if (row.status === 'pending') {
-				summaryAll.pending += 1;
+				summary.pending += 1;
 			} else if (row.status === 'rejected') {
-				summaryAll.rejected += 1;
-			}
-
-			const matchesFilter = domainFilter && domain === domainFilter;
-
-			if (matchesFilter) {
-				summaryFiltered.total += 1;
-				if (row.status === 'approved') {
-					summaryFiltered.approved += 1;
-				} else if (row.status === 'pending') {
-					summaryFiltered.pending += 1;
-				} else if (row.status === 'rejected') {
-					summaryFiltered.rejected += 1;
-				}
+				summary.rejected += 1;
 			}
 
 			if (row.created >= thirtyDaysAgo) {
@@ -119,14 +85,7 @@ export const getStats = async (c: Context<{ Bindings: Bindings }>) => {
 				const day = String(d.getUTCDate()).padStart(2, '0');
 				const key = `${year}-${month}-${day}`;
 
-				dailyMapAll.set(key, (dailyMapAll.get(key) || 0) + 1);
-
-				if (matchesFilter) {
-					dailyMapFiltered.set(
-						key,
-						(dailyMapFiltered.get(key) || 0) + 1
-					);
-				}
+				dailyMap.set(key, (dailyMap.get(key) || 0) + 1);
 			}
 		}
 
@@ -140,8 +99,6 @@ export const getStats = async (c: Context<{ Bindings: Bindings }>) => {
 			}))
 			.sort((a, b) => b.total - a.total);
 
-		const dailyMap = domainFilter ? dailyMapFiltered : dailyMapAll;
-
 		const last7Days: { date: string; total: number }[] = [];
 		for (let i = 29; i >= 0; i--) {
 			const d = new Date(now - i * 24 * 60 * 60 * 1000);
@@ -154,8 +111,6 @@ export const getStats = async (c: Context<{ Bindings: Bindings }>) => {
 				total: dailyMap.get(key) || 0
 			});
 		}
-
-		const summary = domainFilter ? summaryFiltered : summaryAll;
 
 		return c.json({
 			summary,

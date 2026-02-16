@@ -26,7 +26,7 @@ import { getAdminEmail } from './api/admin/getAdminEmail';
 import { setAdminEmail } from './api/admin/setAdminEmail';
 import { testEmail } from './api/admin/testEmail';
 import { getStats } from './api/admin/getStats';
-import { getDomains } from './api/admin/getDomains';
+import { getSites } from './api/admin/getDomains';
 import { trackVisit } from './api/public/trackVisit';
 import { getVisitOverview, getVisitPages } from './api/admin/visitAnalytics';
 import { getLikeStatus, likePage } from './api/public/like';
@@ -35,10 +35,15 @@ import { listLikes } from './api/admin/listLikes';
 import { getLikeStats } from './api/admin/likeStats';
 import { getFeatureSettings, updateFeatureSettings } from './api/admin/featureSettings';
 import { getTelegramSettings, updateTelegramSettings, setupTelegramWebhook, testTelegramMessage } from './api/admin/telegramSettings';
+import { getS3Settings, updateS3Settings } from './api/admin/s3Settings';
+import { triggerS3Backup, listS3Backups, deleteS3BackupHandler, downloadS3BackupHandler } from './api/admin/triggerS3Backup';
 import { telegramWebhook } from './api/telegram/webhook';
+import { ensureSchema } from './utils/dbMigration';
 
 const app = new Hono<{ Bindings: Bindings }>();
 const VERSION = `${packageJson.version}`;
+
+let MIGRATION_CHECKED = false;
 
 const COMMENT_ADMIN_EMAIL_KEY = 'comment_admin_email';
 const COMMENT_ADMIN_BADGE_KEY = 'comment_admin_badge';
@@ -226,6 +231,10 @@ async function saveCommentSettings(
 }
 
 app.use('*', async (c, next) => {
+	if (!MIGRATION_CHECKED) {
+		await ensureSchema(c.env);
+		MIGRATION_CHECKED = true;
+	}
 	console.log('Request:start', {
 		method: c.req.method,
 		path: c.req.path,
@@ -285,14 +294,14 @@ app.get('/admin/export/config', exportConfig);
 app.post('/admin/import/config', importConfig);
 app.get('/admin/export/stats', exportStats);
 app.post('/admin/import/stats', importStats);
+app.get('/admin/stats/comments', getStats);
 app.get('/admin/export/backup', exportBackup);
 app.post('/admin/import/backup', importBackup);
 app.put('/admin/comments/status', updateStatus);
 app.put('/admin/comments/update', updateComment);
-app.get('/admin/stats/comments', getStats);
-app.get('/admin/stats/domains', getDomains);
 app.get('/admin/analytics/overview', getVisitOverview);
 app.get('/admin/analytics/pages', getVisitPages);
+app.get('/admin/stats/sites', getSites);
 app.get('/admin/likes/list', listLikes);
 app.get('/admin/likes/stats', getLikeStats);
 app.get('/admin/settings/features', getFeatureSettings);
@@ -332,6 +341,13 @@ app.get('/admin/settings/telegram', getTelegramSettings);
 app.put('/admin/settings/telegram', updateTelegramSettings);
 app.post('/admin/settings/telegram/setup', setupTelegramWebhook);
 app.post('/admin/settings/telegram/test', testTelegramMessage);
+
+app.get('/admin/settings/s3', getS3Settings);
+app.put('/admin/settings/s3', updateS3Settings);
+app.post('/admin/backup/s3', triggerS3Backup);
+app.get('/admin/backup/s3/list', listS3Backups);
+app.delete('/admin/backup/s3', deleteS3BackupHandler);
+app.get('/admin/backup/s3/download', downloadS3BackupHandler);
 
 app.get('/admin/settings/admin-display', async (c) => {
 	try {
